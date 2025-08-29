@@ -3,6 +3,9 @@ import { useEffect, useCallback } from 'react';
 import { useVoiceSelection } from './speech/useVoiceSelection';
 import { useSpeechState } from './speech/useSpeechState';
 
+// Cache voices across hook instances to avoid repeated loading delays
+let cachedVoices: SpeechSynthesisVoice[] | null = null;
+
 export const useSpeechSynthesis = () => {
   const {
     isSpeaking,
@@ -26,6 +29,9 @@ export const useSpeechSynthesis = () => {
       // Critical for mobile: Load voices
       const loadVoices = () => {
         const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          cachedVoices = voices;
+        }
         console.log('🔊 Loaded', voices.length, 'voices for mobile compatibility');
         return voices;
       };
@@ -122,7 +128,7 @@ export const useSpeechSynthesis = () => {
         }
 
         // Mobile fix: Ensure voices are loaded before creating utterance
-        let voices = window.speechSynthesis.getVoices();
+        let voices = cachedVoices || window.speechSynthesis.getVoices();
         if (voices.length === 0) {
           console.log('🔊 No voices loaded, attempting to trigger load...');
           // Try to nudge, but do NOT block if still empty
@@ -131,6 +137,7 @@ export const useSpeechSynthesis = () => {
             window.speechSynthesis.speak(dummy);
             window.speechSynthesis.cancel();
             voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) cachedVoices = voices;
           } catch {}
           console.log('🔊 After trigger, voices available:', voices.length);
         }

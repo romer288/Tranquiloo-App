@@ -3,11 +3,11 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import * as bcrypt from "bcryptjs";
 import { emailService } from "./emailService";
-import { 
+import {
   insertProfileSchema, insertChatSessionSchema, insertChatMessageSchema,
   insertAnxietyAnalysisSchema, insertTherapistSchema, insertUserTherapistSchema,
   insertUserGoalSchema, insertGoalProgressSchema, insertInterventionSummarySchema,
-  normalizeInterventionSummary
+  normalizeInterventionSummary, type Therapist
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1971,7 +1971,41 @@ Respond ONLY with valid JSON:
         }
       }
 
-      // Use local fallback analysis if Claude failed or API key missing
+      // If Claude failed, try OpenAI's ChatGPT 5 before falling back
+      if (!analysisResult) {
+        const openaiKey = process.env.OPENAI_API_KEY;
+        if (openaiKey) {
+          try {
+            const openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${openaiKey}`
+              },
+              body: JSON.stringify({
+                model: 'gpt-4.1-mini',
+                messages: [{ role: 'user', content: `Analyze the mental health tone of: "${message}" and respond with JSON {"anxietyLevel":number,"triggers":string[],"copingStrategies":string[],"personalizedResponse":string}.` }],
+                temperature: 0.7,
+                max_tokens: 300
+              })
+            });
+            if (openaiResp.ok) {
+              const data = await openaiResp.json();
+              const text = data.choices?.[0]?.message?.content || '';
+              const jsonMatch = text.match(/\{[\s\S]*\}/);
+              if (jsonMatch) {
+                analysisResult = JSON.parse(jsonMatch[0]);
+              }
+            } else {
+              console.error('OpenAI API error:', openaiResp.status, await openaiResp.text());
+            }
+          } catch (err) {
+            console.error('OpenAI request failed:', err);
+          }
+        }
+      }
+
+      // Use local fallback analysis if external APIs failed or missing
       if (!analysisResult) {
         console.log('Using fallback anxiety analysis for message:', message.substring(0, 50) + '...');
         
@@ -2159,7 +2193,7 @@ Respond ONLY with valid JSON:
   app.get("/api/therapists", async (req, res) => {
     try {
       const { city, state, specialty } = req.query;
-      let therapists;
+      let therapists: Therapist[];
 
       if (city && state) {
         therapists = await storage.getTherapistsByLocation(city as string, state as string);

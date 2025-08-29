@@ -7,7 +7,8 @@ import {
   type Therapist, type InsertTherapist, type UserTherapist, type InsertUserTherapist,
   type UserGoal, type InsertUserGoal, type GoalProgress, type InsertGoalProgress,
   type InterventionSummary, type InsertInterventionSummary,
-  type TherapistPatientConnection, type InsertTherapistPatientConnection
+  type TherapistPatientConnection, type InsertTherapistPatientConnection,
+  type NormalizedInterventionSummary
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc } from "drizzle-orm";
@@ -61,7 +62,7 @@ export interface IStorage {
   createGoalProgress(progress: InsertGoalProgress): Promise<GoalProgress>;
 
   // Intervention summaries
-  getInterventionSummariesByUser(userId: string): Promise<InterventionSummary[]>;
+  getInterventionSummariesByUser(userId: string): Promise<NormalizedInterventionSummary[]>;
   createInterventionSummary(summary: InsertInterventionSummary): Promise<InterventionSummary>;
   updateInterventionSummary(id: string, summary: Partial<InsertInterventionSummary>): Promise<InterventionSummary | undefined>;
 
@@ -276,14 +277,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Intervention summaries
-  async getInterventionSummariesByUser(userId: string): Promise<InterventionSummary[]> {
-    // Get from main table
-    const raw = await db.select().from(interventionSummaries).where(eq(interventionSummaries.userId, userId));
-    
-    // Import normalizeInterventionSummary at top of file
+  async getInterventionSummariesByUser(userId: string): Promise<NormalizedInterventionSummary[]> {
+    const raw = await db
+      .select()
+      .from(interventionSummaries)
+      .where(eq(interventionSummaries.userId, userId));
+
     const { normalizeInterventionSummary } = await import('@shared/schema');
-    
-    // Normalize all summaries to ensure consistent field names
     return raw.map(normalizeInterventionSummary);
   }
 

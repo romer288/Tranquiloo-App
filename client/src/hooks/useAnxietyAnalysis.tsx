@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { analyzeAnxietyWithClaude, ClaudeAnxietyAnalysis } from '@/utils/claudeAnxietyAnalysis';
 import { analyzeFallbackAnxiety } from '@/utils/anxiety/fallbackAnalysis';
 import { FallbackAnxietyAnalysis } from '@/utils/anxiety/types';
@@ -8,6 +8,16 @@ export const useAnxietyAnalysis = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [anxietyAnalyses, setAnxietyAnalyses] = useState<(ClaudeAnxietyAnalysis | FallbackAnxietyAnalysis)[]>([]);
   const [currentAnxietyAnalysis, setCurrentAnxietyAnalysis] = useState<ClaudeAnxietyAnalysis | FallbackAnxietyAnalysis | null>(null);
+
+  // Load any persisted analyses for analytics graphs
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('anxietyAnalyses');
+      if (stored) {
+        setAnxietyAnalyses(JSON.parse(stored));
+      }
+    } catch {}
+  }, []);
 
   const analyzeMessage = async (
     message: string,
@@ -51,7 +61,11 @@ export const useAnxietyAnalysis = () => {
       (anxietyAnalysis as any).source = usingClaude ? 'claude' : 'fallback';
 
       setCurrentAnxietyAnalysis(anxietyAnalysis);
-      setAnxietyAnalyses(prev => [...prev, anxietyAnalysis]);
+      setAnxietyAnalyses(prev => {
+        const updated = [...prev, anxietyAnalysis];
+        try { localStorage.setItem('anxietyAnalyses', JSON.stringify(updated)); } catch {}
+        return updated;
+      });
 
       return anxietyAnalysis;
     } finally {

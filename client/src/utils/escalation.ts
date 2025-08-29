@@ -21,8 +21,8 @@ export const shouldEscalate = (
   if (explicit) return true;
 
   // Otherwise require BOTH: high objective level + negative context,
-  // and not just "okay", "I don't want to talk" etc.
-  const lowContent = /^ok(ay)?$|^k$|^no$|^nothing$|^fine$|^whatever$/.test(text);
+  // and ignore common dismissive phrases
+  const lowContent = /^(ok(ay)?|k|no|nothing|fine|whatever|i don['’]t want to talk|leave me alone|i'?m good)$/.test(text);
   if (lowContent) return false;
 
   const a = analysis || {};

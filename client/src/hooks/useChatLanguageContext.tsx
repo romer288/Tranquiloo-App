@@ -23,7 +23,7 @@ export const useChatLanguageContext = () => {
   const updateLanguageContext = useCallback((text: string, isUserInput: boolean = false) => {
     console.log('Updating language context for text:', text.substring(0, 50) + '...');
     
-    // If speech is in progress, wait for it to finish before switching
+    // If speech is in progress, only delay updates for AI responses
     if (speechInProgressRef.current && !isUserInput) {
       console.log('Speech in progress, delaying language update');
       return languageContext.currentLanguage;
@@ -40,15 +40,19 @@ export const useChatLanguageContext = () => {
         languageHistory: [...prev.languageHistory.slice(-4), detectedLanguage] // Keep last 5 languages
       };
 
-      // Update conversation language if there's a clear pattern
-      const recentLanguages = newContext.languageHistory.slice(-3);
-      const spanishCount = recentLanguages.filter(lang => lang === 'es').length;
-      const englishCount = recentLanguages.filter(lang => lang === 'en').length;
+      // Update conversation language immediately when user input switches
+      if (isUserInput) {
+        newContext.conversationLanguage = detectedLanguage;
+      } else {
+        const recentLanguages = newContext.languageHistory.slice(-3);
+        const spanishCount = recentLanguages.filter(lang => lang === 'es').length;
+        const englishCount = recentLanguages.filter(lang => lang === 'en').length;
 
-      if (spanishCount >= 2) {
-        newContext.conversationLanguage = 'es';
-      } else if (englishCount >= 2) {
-        newContext.conversationLanguage = 'en';
+        if (spanishCount >= 2) {
+          newContext.conversationLanguage = 'es';
+        } else if (englishCount >= 2) {
+          newContext.conversationLanguage = 'en';
+        }
       }
 
       console.log('Updated language context:', newContext);

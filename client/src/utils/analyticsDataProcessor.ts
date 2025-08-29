@@ -25,7 +25,7 @@ const getTriggerMetadata = (trigger: string, analyses: ClaudeAnxietyAnalysis[], 
   // Analyze patterns in the client's responses for deeper insights
   const getClientPatterns = () => {
     const relevantAnalyses = analyses.filter(analysis => 
-      analysis.triggers.some(t => t.toLowerCase().includes(lowerTrigger.split(' ')[0]))
+      analysis.triggers.some((t: string) => t.toLowerCase().includes(lowerTrigger.split(' ')[0]))
     );
     
     const cognitiveDistortions = relevantAnalyses.flatMap(a => a.cognitiveDistortions || []);
@@ -46,9 +46,9 @@ const getTriggerMetadata = (trigger: string, analyses: ClaudeAnxietyAnalysis[], 
     }));
     
     const underlyingFactors = [];
-    if (relatedTriggers.some(t => t.includes('attractive'))) underlyingFactors.push('romantic/sexual anxiety');
-    if (relatedTriggers.some(t => t.includes('judgment'))) underlyingFactors.push('fear of negative evaluation');
-    if (relatedTriggers.some(t => t.includes('interaction'))) underlyingFactors.push('interpersonal anxiety');
+    if (relatedTriggers.some((t: string) => t.includes('attractive'))) underlyingFactors.push('romantic/sexual anxiety');
+    if (relatedTriggers.some((t: string) => t.includes('judgment'))) underlyingFactors.push('fear of negative evaluation');
+    if (relatedTriggers.some((t: string) => t.includes('interaction'))) underlyingFactors.push('interpersonal anxiety');
     if (patterns.cognitiveDistortions.includes('All-or-nothing thinking')) underlyingFactors.push('perfectionist thinking patterns');
     
     return {
@@ -75,10 +75,10 @@ THERAPEUTIC IMPLICATIONS: ${
   
   if (lowerTrigger.includes('work') || lowerTrigger.includes('job') || lowerTrigger.includes('career') || lowerTrigger.includes('academic') || lowerTrigger.includes('employment')) {
     const workFactors = [];
-    if (relatedTriggers.some(t => t.includes('performance'))) workFactors.push('performance anxiety');
-    if (relatedTriggers.some(t => t.includes('failure'))) workFactors.push('fear of failure');
-    if (relatedTriggers.some(t => t.includes('pressure'))) workFactors.push('external pressure sensitivity');
-    if (relatedTriggers.some(t => t.includes('immigration'))) workFactors.push('immigration-related stress');
+    if (relatedTriggers.some((t: string) => t.includes('performance'))) workFactors.push('performance anxiety');
+    if (relatedTriggers.some((t: string) => t.includes('failure'))) workFactors.push('fear of failure');
+    if (relatedTriggers.some((t: string) => t.includes('pressure'))) workFactors.push('external pressure sensitivity');
+    if (relatedTriggers.some((t: string) => t.includes('immigration'))) workFactors.push('immigration-related stress');
     
     return {
       category: 'Work/Academic Stress',
@@ -117,7 +117,7 @@ CLINICAL CONSIDERATIONS: ${
       whyExplanation: `CLINICAL INSIGHT: Financial anxiety documented ${count} times (severity avg: ${avgSeverity.toFixed(1)}/10).
 
 UNDERLYING CONCERNS: ${relatedTriggers.includes('unemployment') ? 'Job insecurity and economic instability' : 'Financial management and security fears'}
-FAMILY DYNAMICS: ${relatedTriggers.some(t => t.includes('family')) ? 'Family financial responsibility burden identified' : 'Individual financial concerns'}
+FAMILY DYNAMICS: ${relatedTriggers.some((t: string) => t.includes('family')) ? 'Family financial responsibility burden identified' : 'Individual financial concerns'}
 COGNITIVE PATTERNS: ${patterns.cognitiveDistortions.includes('Catastrophizing') ? 'Catastrophic thinking about financial outcomes' : 'Reality-based financial concerns'}
 
 THERAPEUTIC FOCUS: Financial anxiety often masks deeper control and security needs. Consider exploring attachment patterns and family-of-origin financial messages.`
@@ -131,10 +131,10 @@ THERAPEUTIC FOCUS: Financial anxiety often masks deeper control and security nee
       whyExplanation: `CLINICAL INSIGHT: Relationship anxiety pattern across ${count} conversations (severity avg: ${avgSeverity.toFixed(1)}/10).
 
 ATTACHMENT CONSIDERATIONS: ${
-  relatedTriggers.some(t => t.includes('family')) ? 'Family-of-origin dynamics affecting current relationships' :
+  relatedTriggers.some((t: string) => t.includes('family')) ? 'Family-of-origin dynamics affecting current relationships' :
   'Interpersonal boundary and intimacy concerns'
 }
-COMMUNICATION PATTERNS: ${relatedTriggers.some(t => t.includes('misunderstood')) ? 'Feeling misunderstood suggests communication style mismatches' : 'Standard relationship navigation'}
+COMMUNICATION PATTERNS: ${relatedTriggers.some((t: string) => t.includes('misunderstood')) ? 'Feeling misunderstood suggests communication style mismatches' : 'Standard relationship navigation'}
 
 THERAPEUTIC DIRECTION: Explore attachment style, family dynamics, and communication patterns. Consider couples/family therapy if appropriate.`
     };

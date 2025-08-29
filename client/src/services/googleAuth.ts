@@ -110,9 +110,9 @@ export class GoogleAuthService {
       
       return new Promise((resolve) => {
         // Set up event listener for successful authentication
-        const handleAuthSuccess = (event: CustomEvent) => {
-          const credential = event.detail.credential;
-          
+        const handleAuthSuccess = (event: Event) => {
+          const credential = (event as CustomEvent).detail.credential;
+
           // Decode JWT token to get user info
           const payload = this.parseJwtPayload(credential);
           
@@ -129,10 +129,10 @@ export class GoogleAuthService {
           }
           
           // Clean up listener
-          window.removeEventListener('google-auth-success', handleAuthSuccess);
+          window.removeEventListener('google-auth-success' as any, handleAuthSuccess as EventListener);
         };
-        
-        window.addEventListener('google-auth-success', handleAuthSuccess);
+
+        window.addEventListener('google-auth-success' as any, handleAuthSuccess as EventListener);
         
         // Trigger the Google sign-in popup
         try {
@@ -145,7 +145,7 @@ export class GoogleAuthService {
         
         // Set a timeout in case user cancels
         setTimeout(() => {
-          window.removeEventListener('google-auth-success', handleAuthSuccess);
+          window.removeEventListener('google-auth-success' as any, handleAuthSuccess as EventListener);
           resolve({ success: false, error: 'Sign-in cancelled or timed out' });
         }, 30000); // 30 second timeout
       });

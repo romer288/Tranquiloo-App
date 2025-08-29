@@ -332,7 +332,7 @@ const ClinicalAssessment: React.FC<ClinicalAssessmentProps> = ({ onComplete }) =
     const totalScore = Object.values(answers).reduce((sum, score) => sum + score, 0);
     
     // Determine risk level and conditions based on validated cutoff scores
-    let riskLevel: 'low' | 'moderate' | 'high' | 'severe';
+    let riskLevel: 'low' | 'moderate' | 'high' | 'severe' = 'low';
     let recommendations: string[] = [];
     let potentialConditions: string[] = [];
     
