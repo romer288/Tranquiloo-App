@@ -1,0 +1,72 @@
+Great—thanks for the screenshots. They actually reveal the core issue.
+
+What your screenshots show
+Your Web application client is whitelisting an origin like
+https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.p...
+Not https://tranquiloo-app-arthrombus.replit.app.
+
+When you sign in from a mobile browser (Safari/Chrome), your code uses the web flow (server redirect). That flow is validated only against the Web client’s Authorized JavaScript origins and Authorized redirect URIs.
+
+The iOS and Android clients you created are only for native apps (with package/bundle IDs and custom URL schemes). They’re not consulted when a user signs into your web site from a phone.
+
+So on phones you’re hitting a redirect_uri mismatch / unauthorized origin scenario because Google compares your live domain (tranquiloo-app-arthrombus.replit.app) with the wrong origin/redirect you have registered.
+
+The fix (do these exactly)
+Update the Web client in Google Cloud → Credentials → “Client ID for Web application”:
+
+Authorized JavaScript origins
+
+https://tranquiloo-app-arthrombus.replit.app
+
+Authorized redirect URIs
+
+https://tranquiloo-app-arthrombus.replit.app/auth/google/callback
+
+(If you also use a custom domain later, add it here too with the same /auth/google/callback path.)
+
+Keep using only the Web client for the website, including when users are on iPhone/Android browsers.
+The iOS/Android OAuth clients are for native apps (GoogleSignIn/AppAuth) and won’t make web sign-in succeed.
+
+Make sure your server builds the callback URL from the real host/proto (works behind Replit’s proxy):
+
+ts
+Copy
+Edit
+// server/index.ts
+app.set('trust proxy', true);
+
+// server/routes.ts
+const forwardedProto = (req.headers['x-forwarded-proto'] as string)?.split(',')[0];
+const forwardedHost  = (req.headers['x-forwarded-host']  as string);
+const proto = forwardedProto || req.protocol;
+const host  = forwardedHost  || req.get('host');
+const base  = `${proto}://${host}`;
+const redirectUri = `${base}/auth/google/callback`; // use this everywhere
+Unify your client login button to the server flow (don’t build a raw accounts.google.com URL on the client):
+
+ts
+Copy
+Edit
+window.location.href = `/auth/google?role=${role}&returnUrl=${encodeURIComponent(
+  role === 'therapist' ? '/therapist-dashboard' : '/dashboard'
+)}`;
+(Optional but helpful) Add a quick health check to confirm at runtime:
+
+Hit https://tranquiloo-app-arthrombus.replit.app/auth/google and verify the 302 Location has
+redirect_uri=https%3A%2F%2Ftranquiloo-app-arthrombus.replit.app%2Fauth%2Fgoogle%2Fcallback
+This must be byte-for-byte equal to what you added in the Google console.
+
+Why desktop “seemed” to work sometimes
+You probably tested locally (localhost) or on a different host that was whitelisted, so Google accepted it. On the phone, the first-time clean flow enforces the origin/redirect rules strictly, so it fails.
+
+About native app sign-in (for later)
+When you ship a true native iOS/Android app, you’ll:
+
+Use the iOS / Android client IDs inside the mobile app (with bundle/package IDs).
+
+Use the platform SDKs (GoogleSignIn/AppAuth) and a custom scheme redirect like
+com.googleusercontent.apps.<id>:/oauth2redirect.
+
+Exchange tokens in the app or via your backend.
+
+But for a website opened in a phone browser, it always uses the Web client’s origins/redirects.

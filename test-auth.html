@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Auth</title>
+</head>
+<body>
+    <h1>Authentication Test</h1>
+    <div id="auth-status">Not authenticated</div>
+    <button onclick="testAuth()">Test Authentication</button>
+    
+    <script>
+        async function testAuth() {
+            try {
+                const response = await fetch('/api/auth/user');
+                const data = await response.json();
+                document.getElementById('auth-status').textContent = 
+                    response.ok ? `Authenticated as: ${data.email}` : 'Not authenticated';
+            } catch (error) {
+                document.getElementById('auth-status').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

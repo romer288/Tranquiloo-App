@@ -1,0 +1,116 @@
+what I produced for you (open the panels above)
+
+Lines of code by area (client/src) – bar chart
+
+Top external libraries in the client – table + bar chart
+
+HTTP endpoints by method – bar chart
+
+Endpoints grouped by resource – bar chart
+
+All API endpoints – table (full list)
+
+Database tables (Drizzle) – table + chart
+
+High-signal unused dependencies – table
+
+how the app works (quick mental model)
+
+Stack / layout
+
+Monorepo: client (React + shadcn/radix UI) / server (Node + Express) / shared (Drizzle schema).
+
+DB layer: Drizzle ORM with the tables shown in the chart (e.g., profiles, chat_sessions, chat_messages, anxiety_analyses, user_goals, goal_progress, email_queue, …).
+
+AI: server calls Anthropic Claude directly via fetch with ANTHROPIC_API_KEY.
+
+Email: server wraps SendGrid in server/emailService.ts.
+
+Auth: custom lightweight auth (client/src/services/authService.ts) + Google OAuth (/auth/google routes).
+
+Traffic flow
+
+React UI (router + feature pages) calls your Express API under /api/*.
+
+Express handlers in server/routes.ts call the storage layer in server/storage.ts (Drizzle) and services (email, AI).
+
+DB reads/writes happen through the Drizzle models defined in shared/schema.ts.
+
+What the charts say
+
+Endpoints by method: mostly GET and POST (few PUT, no DELETE).
+
+Endpoints grouped by resource: heaviest groups are api/therapist, api/profiles, api/users, api/chat-sessions, api/auth. You also have specific features like api/anxiety-analyses, api/recommend-app, api/analyze-anxiety-claude, etc.
+
+Client libraries: a lot of path-aliased imports (@/...), plus react, lucide-react, @radix-ui/*, react-router-dom, class-variance-authority, three/@react-three/*, recharts, wouter (you’re using two routers: react-router and wouter).
+
+things to delete or refactor (based on code scans)
+1) Supabase
+
+The package @supabase/supabase-js is installed but is never imported anywhere.
+
+However, several files still call supabase.… (likely legacy code paths). There’s no global or client init, so these calls will either never run or will crash if they execute.
+
+Files that still reference supabase (please refactor or remove):
+
+client/src/components/track-anxiety/TrackAnxietyForm.tsx
+
+client/src/pages/Index.tsx
+
+client/src/pages/Registration.tsx
+
+client/src/pages/ResetPassword.tsx
+
+client/src/pages/TherapistPortal.tsx
+
+client/src/services/analyticsExportService.ts
+
+client/src/services/analyticsService.ts
+
+client/src/services/authService.ts (has comments about replacing Supabase, but still mentions it)
+
+client/src/services/chatService.ts
+
+client/src/services/goalsService.ts
+
+client/src/services/interventionSummaryService.ts
+
+client/src/services/therapistDataService.ts
+
+client/src/services/therapistReportService.ts
+
+server/routes.ts (comment only: “replacing Supabase Edge Function”)
+
+Action
+
+Replace every supabase.from('…') read/write with the existing REST endpoints:
+
+profiles → GET /api/profiles/:id, GET /api/profiles/by-email/:email
+
+anxiety_analyses insert → POST /api/anxiety-analyses
+
+chat sessions/messages → /api/chat-sessions, /api/chat-messages
+
+goals & progress → /api/goals, /api/goal-progress
+
+Once those references are gone, remove @supabase/supabase-js from package.json and lockfile; run a clean install.
+You’ll also avoid shipping a large unused SDK to the client.
+
+2) Dual routers
+
+You’re importing both react-router-dom and wouter. That makes routing/state flow harder to reason about and increases bundle size.
+Action: Pick one (recommend react-router-dom since it’s used more) and refactor the few wouter usages.
+
+3) Heavy client libs
+
+three/@react-three/* and recharts appear in the top libs.
+Action: lazy-load those feature routes/components to keep first-load fast.
+
+4) Email
+
+server/emailService.ts uses SendGrid and warns if SENDGRID_API_KEY isn’t set (then it logs instead of sending).
+Action: make sure the env var is set in prod; optionally push all email sends through a small queue table (email_queue) + background sender to decouple request latency.
+
+5) Dependency sweep
+
+The “High-signal unused dependencies” table I generated didn’t flag other obvious removals besides the Supabase SDK. If you want, I can run a stricter tree-shake check, but Supabase is the big one.

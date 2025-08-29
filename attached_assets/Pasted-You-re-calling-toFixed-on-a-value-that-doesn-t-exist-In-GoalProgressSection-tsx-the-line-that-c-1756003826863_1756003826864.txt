@@ -1,0 +1,68 @@
+You’re calling .toFixed() on a value that doesn’t exist.
+
+In GoalProgressSection.tsx the line that crashes is:
+
+{goal.completion_rate.toFixed(2)}% complete
+
+
+But in TherapistDashboard.tsx you never add a completion_rate to the goals you pass to that component. (In your other page, PatientAnalytics, you do compute it, but here you only normalize timestamps.)
+
+So for some goals goal.completion_rate === undefined, and undefined.toFixed throws.
+
+Two quick fixes (do both for safety)
+1) Defensive render in GoalProgressSection.tsx
+
+Change the display to guard against missing data:
+
+<p className="text-xs text-muted-foreground">
+  {(Number(goal.completion_rate ?? 0)).toFixed(2)}% complete
+</p>
+
+
+(If the component also reads average_score, progress_history, etc., guard those too with ?? defaults.)
+
+2) Compute completion_rate when normalizing goals in TherapistDashboard.tsx
+
+Right after you build normalizedData, compute the derived fields so the UI always has them:
+
+const calcCompletion = (goal: any) => {
+  const progress = goal.goal_progress ?? goal.progress_history ?? [];
+  const start = new Date(goal.start_date ?? goal.created_at ?? Date.now());
+  const days = Math.max(1, Math.ceil((Date.now() - start.getTime()) / 86400000));
+  let expected = 1;
+  switch ((goal.frequency ?? '').toLowerCase()) {
+    case 'daily': expected = days; break;
+    case 'weekly': expected = Math.ceil(days / 7); break;
+    case 'monthly': expected = Math.ceil(days / 30); break;
+  }
+  const actual = progress.length;
+  return Math.min(100, (actual / expected) * 100);
+};
+
+const normalizedData = {
+  ...analyticsData,
+  analyses: /* your existing mapping */,
+  goals: (analyticsData.goals || []).map((g: any) => {
+    const progress = g.goal_progress ?? [];
+    const avg = progress.length
+      ? progress.reduce((s: number, p: any) => s + (p.score ?? 0), 0) / progress.length
+      : 0;
+    return {
+      ...g,
+      created_at: g.created_at ?? g.createdAt,
+      updated_at: g.updated_at ?? g.updatedAt,
+      user_id: g.user_id ?? g.userId ?? patientId,
+      progress_history: progress,
+      average_score: avg,
+      completion_rate: calcCompletion(g),        // ✅ add this
+      latest_progress: progress[0] ?? null,
+    };
+  }),
+  summaries: /* your existing mapping */
+};
+
+setSelectedPatientData(normalizedData);
+
+
+Why this happened:
+GoalProgressSection was written assuming goals already include completion_rate (as in your PatientAnalytics screen, where it’s computed). The TherapistDashboard path doesn’t compute it, so the prop is undefined. Guard in the component and compute the field when normalizing, and the error will go away.

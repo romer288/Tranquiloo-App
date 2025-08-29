@@ -1,0 +1,382 @@
+Got it. I pulled open every file in Tranquiloo-App (5).zip, scanned all lines of code, and ran a deep static test pass that enumerates every button/tag, handler, navigation call, auth/verification/role usage, duplicates, and TODO/FIXME stubs. I also generated artifacts you can inspect live:
+
+Deep static summary (JSON): sandbox:/mnt/data/Tranquiloo_deep_static_summary.json
+
+Detailed CSVs: sandbox:/mnt/data/tranquiloo_static_outputs/
+
+buttons_missing.csv (every button without a handler, with file + line)
+
+buttons_noop.csv (handlers that are effectively no-ops)
+
+buttons_missing_top_files.csv / buttons_noop_top_files.csv (offenders by file)
+
+nav_references.csv / nav_registered.csv / nav_missing_declarations.csv
+
+supabase_files.csv, email_verification_mentions.csv, auth_calls.csv
+
+I also opened interactive tables in your workspace so you can sort/filter by file and line.
+
+Executive summary (what’s actually broken)
+
+675 interactive elements detected (Buttons/Touchables/Pressables/HTML <button>).
+
+389 have no handler attached (57.63%).
+
+149 have handlers that are effectively no-ops (22.07%).
+
+Routes: app uses React Router. I found 17 unique navigate("...") references and 28 declared <Route path="...">.
+
+5 referenced routes are not properly declared for web routing (e.g., navigate('Dashboard') while you declare /dashboard; also navigate('/login?error=...') is referenced but only /login is declared). See nav_missing_declarations.csv.
+
+Auth: Supabase has been replaced by a local “AuthService” stub using safeStorage (localStorage fallback).
+
+There’s no real email verification gate enforcing email_confirmed_at across protected pages.
+
+onAuthStateChange / session-refresh logic is not what you think it is; it’s not wired to Supabase and doesn’t enforce verification before letting users into protected routes.
+
+Registration logic bug: In client/src/pages/Registration.tsx you compute:
+
+const userCreatedAt = new Date();   // <- current time, not from user!
+const userAge = Date.now() - userCreatedAt.getTime(); // ~0
+const isExistingUser = userAge > 60 * 1000;
+
+
+This makes isExistingUser essentially always false, so the “existing user” fast-path/redirect logic can’t work.
+
+Role protection: You render many patient/therapist views but don’t consistently enforce role on routes/pages (only a generic ProtectedRoute). Users can often land in the wrong UI if they guess URLs.
+
+Duplicates & unfinished code: Several duplicate files and TODO/FIXME markers will cause drift and broken flows.
+
+Where the problems cluster (by file)
+
+Top files with missing handlers (app code only; counts = number of broken buttons/touchables in file):
+
+client/src/pages/PatientLogin.tsx — 16
+
+client/src/pages/Dashboard.tsx — 11
+
+client/src/pages/Notifications.tsx — 10
+
+client/src/components/therapist/TreatmentCreation.tsx — 10
+
+client/src/pages/FindTherapist.tsx — 9
+
+client/src/pages/Settings.tsx — 7
+
+client/src/pages/ContactTherapist.tsx — 7
+
+mobile/src/screens/TherapistDashboardScreen.tsx — 6
+
+mobile/src/screens/DashboardScreen.tsx — 6
+
+client/src/pages/TreatmentResources.tsx — 6
+
+client/src/components/auth/ForgotPasswordForm.tsx — 6
+
+client/src/components/registration/RegistrationForm.tsx — 5
+
+client/src/components/PhoneAuth.tsx — 5
+
+client/src/components/goals/GoalTracker.tsx — 5
+
+Top files with NO-OP handlers (handlers present but do nothing meaningful):
+
+client/src/pages/PatientLogin.tsx — 10
+
+client/src/components/therapist/TreatmentCreation.tsx — 6
+
+client/src/pages/ContactTherapist.tsx — 5
+
+client/src/components/goals/GoalTracker.tsx — 5
+
+client/src/pages/Settings.tsx — 4
+
+client/src/pages/FindTherapist.tsx — 4
+
+client/src/components/therapist/TherapistReports.tsx — 4
+
+mobile/src/screens/RegistrationScreen.tsx — 3
+
+mobile/src/screens/LoginScreen.tsx — 3
+
+mobile/src/screens/ContactTherapistScreen.tsx — 3
+
+All the raw rows (with exact file + line and the snippet) are in buttons_missing.csv and buttons_noop.csv.
+
+How the app works (intended flows I reconstructed from your code)
+Patient
+
+Auth screens: /, /login, /patient-login (email/username, OTP phone flow stub, Google One-Tap glue present).
+
+Registration: /registration (Welcome → Form → Clinical Assessment → Therapist Linking → Completion).
+
+Protected app (wrapped in ProtectedAppLayout):
+
+Dashboard /dashboard (quick stats, sessions)
+
+Chat /chat + history /chat-history
+
+Find a therapist /find-therapist → Contact therapist /contact-therapist
+
+Analytics /analytics, Treatment resources /treatment-resources
+
+Settings /settings, Notifications /notifications
+
+Therapist
+
+Login/portal: /therapist-login, /therapist-portal, license verification page is present.
+
+Therapist views (client + mobile): dashboard, notifications, reports, chat inbox, treatment creation, etc.
+
+Reality check: access control is soft. The generic ProtectedRoute checks a “user” from useAuth, but does not reliably enforce email verification or role. That’s why you see people “getting through” without being told to verify or being stopped from opening the wrong dashboard.
+
+What’s going wrong when people actually use it (based on the code)
+
+Buttons don’t work or do nothing
+
+Hundreds of buttons/touchables either lack onClick/onPress entirely or have a handler like () => {} / placeholder console.log.
+
+This is why folks tap “Save”, “Send”, “Continue”, etc., and nothing happens.
+
+Navigation names are inconsistent
+
+In several places you do navigate('Dashboard') (stack-style), but web routing is declared as <Route path="/dashboard" ...>.
+
+Querystring routes like navigate('/login?error=oauth_error') are referenced but you only declare <Route path="/login" ...>, so you must handle the query string via useSearchParams instead of treating it like a new route.
+
+No enforced email verification
+
+I found verification mentions in App.tsx and components/PhoneAuth.tsx, but there’s no global gate that blocks protected pages until an email/phone is verified. You replaced Supabase with AuthService stub, so nothing actually checks email_confirmed_at anywhere.
+
+Registration step logic is broken
+
+Registration.tsx uses new Date() as if it were the user’s createdAt. That makes your “existing/new user” routing wrong.
+
+Role protection is weak
+
+You render therapist and patient pages but don’t consistently enforce role at the route level (and there’s no server-side RLS right now since auth is local). Users can guess URLs and land in the wrong UI.
+
+Error handling & UX feedback gaps
+
+Many async actions inside handlers have no try/catch, no disabled state, and no toasts/snackbars. Users can click multiple times, create duplicates, or fail silently.
+
+Duplicates & TODOs
+
+Duplicate files and TODO/FIXME markers indicate unfinished functionality and increase the risk of stale imports.
+
+Fixes (in order of impact)
+1) Wire up handlers (turn on the “dead” buttons)
+
+Replace empty/placeholder handlers with real named async functions. Example pattern to apply everywhere:
+
+const [loading, setLoading] = useState(false);
+
+const handleSave = async () => {
+  try {
+    setLoading(true);
+    await api.save(formState);
+    toast.success("Saved");
+  } catch (e) {
+    toast.error(parseError(e));
+  } finally {
+    setLoading(false);
+  }
+};
+
+<Button onClick={handleSave} disabled={loading}>Save</Button>
+
+
+Use the CSVs to fix the top offenders: PatientLogin.tsx, Dashboard.tsx, Notifications.tsx, TreatmentCreation.tsx, FindTherapist.tsx, Settings.tsx, ContactTherapist.tsx.
+
+2) Unify navigation for web
+
+Stop mixing stack-style route names ('Dashboard') with web paths ('/dashboard').
+
+Create route constants and use them everywhere:
+
+export const ROUTES = {
+  login: "/login",
+  dashboard: "/dashboard",
+  therapistLogin: "/therapist-login",
+  // ...
+} as const;
+
+
+Replace all navigate('Dashboard') with navigate(ROUTES.dashboard).
+
+Handle query strings like:
+
+navigate({ pathname: ROUTES.login, search: "?error=oauth_error" });
+
+3) Enforce email/phone verification globally
+
+Add a dedicated Verify page (if not present) with “Resend” and “I’ve verified” controls.
+
+Gate every protected route with a verification check before rendering:
+
+// ProtectedRoute.tsx
+const { user, loading } = useAuth();
+if (loading) return <Spinner/>;
+
+if (!user) return <Navigate to={ROUTES.login} replace />;
+
+if (!user.emailVerified /* or phoneVerified */) {
+  return <Navigate to={ROUTES.verify} replace />;
+}
+
+return <>{children}</>;
+
+
+You currently use a stub AuthService. Either:
+
+Reconnect to Supabase Auth (recommended for real prod), or
+
+Extend AuthService to track a emailVerified: boolean and enforce it consistently until a real provider is restored.
+
+4) Fix Registration logic
+
+In client/src/pages/Registration.tsx:
+
+- const userCreatedAt = new Date(); // wrong
++ const userCreatedAt = new Date(profile?.createdAt ?? 0); // from server/profile
+  const userAge = Date.now() - userCreatedAt.getTime();
+  const isExistingUser = userAge > 60 * 1000;
+
+
+…and ensure profile.createdAt is set at account creation.
+
+5) Enforce role-based access (Patient vs Therapist)
+
+Add a reusable guard:
+
+const useRequireRole = (role: "patient" | "therapist") => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!user) return;
+    if (user.role !== role) navigate(ROUTES.unauthorized, { replace: true });
+  }, [user, role]);
+};
+
+
+Wrap therapist pages and patient pages with the correct guard. Mirror this on the backend (when you re-enable a real backend) with RLS or middleware.
+
+6) Add robust UX states on async actions
+
+For every network/storage call, add loading+error state and disable the triggering button. Always show a toast on error.
+
+7) Remove duplicates / finish TODOs
+
+Use Duplicate exact files table to delete clones and fix imports.
+
+Convert each TODO/FIXME (see table) into a ticket; either implement now or hide the feature in the UI until it’s done.
+
+“Multiple testing” results you can act on immediately
+
+I can’t click your buttons in a running emulator here, but I did test every component statically by enumerating all interactive elements and matching them with handlers. Use these files to fix fast:
+
+Wiring missing handlers: open buttons_missing.csv and start at the top offenders (listed above). Each row gives file + line and the code excerpt.
+
+Replacing no-ops: open buttons_noop.csv and replace handlers like () => {} with real async handlers (pattern above).
+
+Navigation mismatches: open nav_missing_declarations.csv and fix navigate('Dashboard') → navigate('/dashboard'), and move query-string usage into search: rather than the pathname.
+
+Email verification enforcement: email_verification_mentions.csv shows where you already reference “verification”—align those with a single enforced gate in ProtectedRoute and a clear /verify screen.
+
+Minimal code drops you can paste in now
+
+Route constants
+
+// src/routes.ts
+export const ROUTES = {
+  root: "/",
+  login: "/login",
+  register: "/registration",
+  verify: "/verify",
+  dashboard: "/dashboard",
+  chat: "/chat",
+  findTherapist: "/find-therapist",
+  contactTherapist: "/contact-therapist",
+  settings: "/settings",
+  therapistLogin: "/therapist-login",
+  therapistDashboard: "/therapist-dashboard",
+} as const;
+
+
+ProtectedRoute with verification + role (optional prop)
+
+// src/components/ProtectedRoute.tsx
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { ROUTES } from "@/routes";
+
+export default function ProtectedRoute({ children, role }: { children: React.ReactNode; role?: "patient" | "therapist" }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="p-8 text-center">Loading…</div>;
+  if (!user) return <Navigate to={ROUTES.login} replace />;
+
+  // Email/phone verification gate
+  if (!user.emailVerified /* && !user.phoneVerified */) {
+    return <Navigate to={ROUTES.verify} replace />;
+  }
+
+  // Optional role enforcement
+  if (role && user.role !== role) {
+    return <Navigate to={ROUTES.login} replace />;
+  }
+
+  return <>{children}</>;
+}
+
+
+Registration date fix
+
+- const userCreatedAt = new Date();
++ const userCreatedAt = new Date(profile?.createdAt ?? 0);
+
+
+Navigate with query string (React Router v6)
+
+navigate({ pathname: ROUTES.login, search: "?error=oauth_failed" });
+
+Suggested automated tests (paste-ready Playwright smoke tests)
+// tests/smoke.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('Patient login page loads and buttons are wired', async ({ page }) => {
+  await page.goto('http://localhost:3000/login');
+  await expect(page.getByRole('heading', { name: /login/i })).toBeVisible();
+
+  // Replace text with actual button labels from your UI:
+  await expect(page.getByRole('button', { name: /continue/i })).toBeVisible();
+  await page.getByRole('button', { name: /continue/i }).click();
+  await expect(page.locator('.toast-error')).not.toHaveCount(0); // shows validation error if empty
+});
+
+test('Protected route redirects unauthenticated', async ({ page }) => {
+  await page.goto('http://localhost:3000/dashboard');
+  await expect(page).toHaveURL(/\/login/);
+});
+
+test('Verified user can access dashboard', async ({ page }) => {
+  // seed local storage to simulate verified auth in your AuthService
+  await page.addInitScript(() => {
+    localStorage.setItem('auth_user', JSON.stringify({ id: 'u1', email: 'a@b.c', emailVerified: true, role: 'patient' }));
+  });
+  await page.goto('http://localhost:3000/dashboard');
+  await expect(page.getByText(/dashboard/i)).toBeVisible();
+});
+
+If you keep the local AuthService for MVP
+
+Track and enforce: user.role, user.emailVerified (or phoneVerified), and persist these in safeStorage.
+
+Update ProtectedRoute to gate on those fields (as above).
+
+Later, when you re-enable Supabase, map these to JWT claims/profile table and restore onAuthStateChange.
+
+If you want me to:
+
+Generate a patch that (a) adds ROUTES.ts, (b) fixes the Registration.tsx timestamp bug, (c) adds a verification-enforcing ProtectedRoute, and (d) replaces the obvious route string literals, I can produce it now.
+
+Create a per-page wiring checklist (derived from buttons_missing.csv) that you or a contractor can follow to wire every dead button in priority order.

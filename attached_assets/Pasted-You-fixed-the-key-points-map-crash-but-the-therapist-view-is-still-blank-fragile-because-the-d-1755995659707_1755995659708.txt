@@ -1,0 +1,173 @@
+You fixed the key_points.map(...) crash, but the therapist view is still blank/fragile because the data you’re grouping on isn’t normalized. In your seed/DB rows the weekly summary fields arrive with mixed names and types:
+
+weekStart vs week_start (and sometimes missing or invalid date strings)
+
+weekEnd vs week_end
+
+interventionType vs intervention_type vs "Anxiety Management" (needs snake-case)
+
+conversationCount vs conversation_count
+
+list fields can be strings "a, b, c" or arrays
+
+Your component only normalizes the list fields. Then you immediately do:
+
+new Date(summary.week_start)            // can be undefined/invalid
+summary.intervention_type               // can be undefined/mismatched
+interventionSummaries.length            // breaks if the reducer produced a non-array accidentally
+
+
+That makes the grouping either produce wrong shapes or throw (e.g., toLocaleString on an invalid Date).
+
+Below is a surgical patch to your existing file that keeps your structure but normalizes the rest of the fields and hardens the grouping. Paste these changes into
+client/src/components/analytics/InterventionSummariesSection.tsx:
+
+1) Strengthen helpers (add safe date + snake-case + normalize core fields)
+
+Replace your helper block (the toArray + normalize) with this:
+
+const toArray = (v: unknown) =>
+  Array.isArray(v) ? v :
+  typeof v === 'string' ? v.split(',').map(s => s.trim()).filter(Boolean) :
+  [];
+
+const toSnake = (s: string) =>
+  s ? s.replace(/[\s-]+/g, '_').toLowerCase() : 'unknown';
+
+const isValidDate = (d: Date) => Number.isFinite(d.getTime());
+
+const safeISO = (v: any, fallback?: string) => {
+  const d = new Date(v ?? fallback ?? Date.now());
+  return isValidDate(d) ? d.toISOString() : new Date().toISOString();
+};
+
+const normalize = (s: any) => {
+  // Normalize names
+  const weekStart = s.week_start ?? s.weekStart ?? s.start ?? s.start_date;
+  const weekEnd   = s.week_end   ?? s.weekEnd   ?? s.end   ?? s.end_date;
+  const rawType   = s.intervention_type ?? s.interventionType ?? s.type ?? 'unknown';
+
+  return {
+    // required identifiers
+    id: String(s.id ?? `${rawType}-${weekStart ?? Date.now()}`),
+
+    // dates as ISO so Date() always parses them later
+    week_start: safeISO(weekStart),
+    week_end:   safeISO(weekEnd, weekStart ? new Date(new Date(weekStart).getTime() + 6*86400000) : undefined),
+
+    // canonical type
+    intervention_type: toSnake(rawType),
+
+    // counters
+    conversation_count: Number(s.conversation_count ?? s.conversationCount ?? s.count ?? 0),
+
+    // lists (accept camel/snake and string)
+    keyPoints:         toArray(s.keyPoints ?? s.key_points),
+    recommendations:   toArray(s.recommendations ?? s.recs),
+    limitations:       toArray(s.limitations ?? s.limitation_points),
+
+    // carry everything else untouched
+    ...s,
+  } as InterventionSummary;
+};
+
+
+And keep this line as-is so all summaries benefit:
+
+const normalizedSummaries = (summaries ?? []).map(normalize);
+
+2) Harden the “available years/months” builders
+
+Replace those two useMemo blocks with:
+
+const availableYears = useMemo(() => {
+  const years = new Set<number>();
+  for (const s of normalizedSummaries) {
+    const d = new Date(s.week_start);
+    if (isValidDate(d)) years.add(d.getFullYear());
+  }
+  return Array.from(years).sort((a, b) => b - a);
+}, [normalizedSummaries]);
+
+const availableMonths = useMemo(() => {
+  const months = new Set<string>();
+  for (const s of normalizedSummaries) {
+    const d = new Date(s.week_start);
+    if (!isValidDate(d)) continue;
+    if (selectedYear !== 'all' && d.getFullYear() !== Number(selectedYear)) continue;
+    months.add(d.toLocaleString('default', { month: 'long' }));
+  }
+  return Array.from(months);
+}, [normalizedSummaries, selectedYear]);
+
+3) Filtered list with safe dates
+
+Replace filteredSummaries with:
+
+const filteredSummaries = useMemo(() => {
+  return normalizedSummaries.filter(summary => {
+    const d = new Date(summary.week_start);
+    if (!isValidDate(d)) return false;
+    const year = d.getFullYear();
+    const month = d.toLocaleString('default', { month: 'long' });
+
+    const yearMatch = selectedYear === 'all' || year === Number(selectedYear);
+    const monthMatch = selectedMonth === 'all' || month === selectedMonth;
+    return yearMatch && monthMatch;
+  });
+}, [normalizedSummaries, selectedYear, selectedMonth]);
+
+4) Robust grouping (year → month → intervention type)
+
+Replace the groupedByDate useMemo with:
+
+const groupedByDate = useMemo(() => {
+  return filteredSummaries.reduce((acc, summary) => {
+    const d = new Date(summary.week_start);
+    if (!isValidDate(d)) return acc;
+
+    const year = d.getFullYear();
+    const month = d.toLocaleString('default', { month: 'long' });
+    const type = summary.intervention_type ?? 'unknown';
+
+    (((acc[year] ??= {})[month] ??= {})[type] ??= []).push(summary);
+    return acc;
+  }, {} as Record<number, Record<string, Record<string, InterventionSummary[]>>>);
+}, [filteredSummaries]);
+
+5) Minor defensive tweaks in render
+
+Where you show the count badge:
+
+<Badge variant="outline" className="ml-2">
+  {(Array.isArray(interventionSummaries) ? interventionSummaries.length : 0)}
+  {' '}week{Array.isArray(interventionSummaries) && interventionSummaries.length > 1 ? 's' : ''}
+</Badge>
+
+
+When sorting summaries:
+
+(Array.isArray(interventionSummaries) ? interventionSummaries : [])
+  .sort((a, b) => new Date(b.week_start).getTime() - new Date(a.week_start).getTime())
+  .map(/* ... */)
+
+
+When formatting dates in the card header:
+
+const ws = new Date(summary.week_start);
+const we = new Date(summary.week_end);
+const wsStr = isValidDate(ws) ? ws.toLocaleDateString() : '—';
+const weStr = isValidDate(we) ? we.toLocaleDateString() : '—';
+...
+{wsStr} – {weStr}
+
+
+You don’t have to touch the big inline list normalizations you already wrote; the changes above make sure the date and type fields are valid and consistent, so the grouping produces proper arrays, and the maps in the render stay safe.
+
+Why it was still blank/fragile
+
+Your data loader for therapist summaries is mixing camelCase and snake_case (and sometimes storing list fields as comma-joined strings).
+
+The component was assuming week_start, week_end, and intervention_type were always present/valid. When any of those were missing or malformed, the date math either filtered everything out or produced groups where interventionSummaries wasn’t the array you expect—leading to empty sections and occasional crashes.
+
+Normalize those three core fields and your existing UI will render the real patient data reliably. If anything still errors, send me the new line/file from the overlay and I’ll patch that path too.

@@ -1,0 +1,199 @@
+Highest-impact issues (fix these first)
+1) Mismatched client → server endpoints (real bugs)
+
+Your UI calls a few API paths that don’t exist on the server:
+
+File	Line	Client calls	Server has
+client/src/pages/AuthCallback.tsx	19	/api/auth/google-callback	✅ GET /auth/google/callback (no /api prefix)
+client/src/components/therapist/TherapistReports.tsx	102	/api/therapist/generate-report	❌ no such route
+client/src/components/therapist/TreatmentCreation.tsx	191	/api/therapist/send-treatment-email	❌ no such route
+client/src/services/interventionSummaryService.ts	19	/api/intervention-summaries	❌ no such route
+
+What to do
+
+Update AuthCallback.tsx to call /auth/google/callback (or add a new server alias /api/auth/google-callback that redirects).
+
+Either add therapist routes on the server that match what the UI is calling or update the client to use the existing therapist endpoints (see the “Server routes” table I posted). Current therapist routes include:
+
+GET /api/therapist/patient/:id/reports
+
+GET /api/therapist/reports/:id/content
+
+GET /api/therapist/notifications/:email
+
+POST /api/therapist/patient/:id/treatment-plan
+
+POST /api/therapist/chat, POST /api/therapist/search-patient
+
+If “intervention summaries” were renamed, point the service at the new route (e.g., your repo has GET /api/anxiety-analyses and related).
+
+You’ll find a table named “Client API calls with no matching server route (literal)” listing these.
+
+2) Verification & auth: server enforces verification but no password is validated
+
+POST /api/auth/signin enforces that unverified users receive 403 EMAIL_NOT_VERIFIED (good), and creates a user + queues a verification email for new emails (good).
+But: the route does not validate the password for existing, verified users — it accepts any password.
+You can see this in server/routes.ts inside the /api/auth/signin handler: it checks presence of password but never compares it to a hashed value or to anything in storage.
+
+If you intend to be passwordless, that’s fine; remove the password field and call it out.
+If you intend to support passwords, add:
+
+a hashed password column in your schema,
+
+bcrypt hashing on signup,
+
+bcrypt compare on signin.
+
+(The client already switched to using /api/auth/signin and correctly handles EMAIL_NOT_VERIFIED, nice.)
+
+3) Email sending: queue runs, but delivery depends on env
+
+server/emailService.ts is wired and started from server/index.ts (emailService.startEmailProcessor() ✔).
+
+Without SENDGRID_API_KEY (or with an unverified sender), the service logs emails and returns true (so your queue moves to “sent”). This is intentional for testing, but production needs:
+
+SENDGRID_API_KEY with permissions (starts with SG.)
+
+a Single Sender Verification (in addition to domain auth), or a verified sender identity
+
+optional: set SENDGRID_FROM and use it in emailService.ts so you aren’t hard-coding info@tranquiloo-app.com.
+
+I posted “Email wiring status” in the tables. It shows the queue is started; just make sure your SendGrid creds and sender are valid.
+
+Code quality & correctness sweep
+
+I scanned every file and flagged suspicious lines. See the tables:
+
+“Suspicious patterns & potential problems” – every hit with file + line + snippet.
+
+“Suspects by issue type” – counts by category.
+
+“Files with most flagged lines” – where cleanups will pay off fastest.
+
+“Client/Server orphans” – files not reachable from the entry points (likely dead code).
+
+Here’s a prioritized breakdown:
+
+A) Console logs left in production code (many)
+
+Top offenders:
+
+client/src/pages/TherapistPortal.tsx (42)
+
+client/src/hooks/useSpeechSynthesis.tsx (22)
+
+server/emailService.ts (17)
+
+client/src/hooks/useSpeechRecognition.tsx (17)
+
+client/src/hooks/chat/useInteractionHandlers.tsx (15)
+
+client/src/hooks/speech/useVoiceSelection.tsx (15)
+
+client/src/pages/Registration.tsx (13)
+
+server/routes.ts (13)
+
+client/src/hooks/registration/useRegistrationSteps.tsx (13)
+
+client/src/components/ChatContainer.tsx (11)
+
+Action: Drop console.log/console.debug in UI and server or guard them behind NODE_ENV !== 'production'.
+
+B) Orphaned files (likely removable)
+
+Client: 72 files not reachable from client/src/main.tsx. Examples:
+components/avatar/*, components/analytics/DownloadHistorySection.tsx, several track-anxiety/* pieces, etc.
+
+Server: Tool flagged server/emailService.ts as orphan, but it is imported in index.ts; that’s a false positive in the import walker. Everything else looks connected.
+
+Action: Delete or move truly-unused client files to /legacy to keep the tree clean.
+
+C) Supabase remnants (cleanup)
+
+I still detect 12 files that mention Supabase (mostly comments now, which is fine), e.g.:
+
+client/src/pages/ResetPassword.tsx (comment about hash tokens)
+
+various client/src/services/*Service.ts headers (“migrated from Supabase…”)
+
+server/routes.ts (comment)
+
+I didn’t find active runtime supabase.* calls in these; if you want zero noise, search and purge.
+
+D) Inconsistent JSON response shapes
+
+Server handlers return a mix of raw arrays/objects and { success, message } objects. A few examples (from server/routes.ts):
+
+res.json(reports) vs res.json({ success: true, message: '...' }) vs res.json(null)
+
+Action: adopt a single envelope like:
+
+res.json({ success: true, data, error: null });
+// on error
+res.status(400).json({ success: false, data: null, error: { code, message }});
+
+
+This will make client error handling and typing simpler.
+
+E) Empty/loose error handling
+
+I didn’t see empty catch {} blocks, but several handlers swallow exceptions with only console.error then continue. Prefer return res.status(500).json({ success:false, error: … }) after logging.
+
+Functions-specific notes
+
+Auth callback (Google) – GET /auth/google/callback still writes to localStorage via an injected HTML page. Consider also marking the user verified in storage when this path succeeds (email verified true), or clearly treat Google sign-ins as verified.
+
+Verification – GET /verify-email?token=… path is implemented; it flips emailVerified and renders an HTML “Sign In Now” page (good).
+
+Password reset – endpoints exist (/api/auth/forgot-password), and verification email content is composed. Make sure the reset page (/reset-password) consumes the token the server sets (verify storage.setPasswordResetToken is present). If you’re going passwordless, disable this path.
+
+Concrete “fix now” checklist
+
+Fix bad endpoints
+
+AuthCallback.tsx:19 → change '/api/auth/google-callback' → '/auth/google/callback' (or add a server alias).
+
+Either change the UI or add routes for:
+
+POST /api/therapist/generate-report
+
+POST /api/therapist/send-treatment-email
+
+GET /api/intervention-summaries
+
+(See Server routes table to match the actual server paths you already have.)
+
+Decide password story
+
+Passwordless: drop password fields on the client; leave signin as email-only (send verification email/magic link).
+
+Passwords: add hashed_password + bcrypt logic (signup + signin) and wire resetPassword to actually change the stored hash.
+
+Email delivery
+
+Set SENDGRID_API_KEY and verify a Single Sender (or use domain auth + verified sender).
+
+Add SENDGRID_FROM and use it in emailService.ts to avoid hard-coded info@tranquiloo-app.com.
+
+Normalize server responses
+
+Return { success, data, error } everywhere.
+
+Clean logs & dead code
+
+Remove console logs and unused files. Focus on the 10 files listed above (biggest impact).
+
+Where to look in the tables
+
+Server routes – full list of routes your server actually exposes.
+
+Client API calls with no matching server route (literal) – the client calls that don’t match.
+
+Suspicious patterns & potential problems – every flagged line with context.
+
+Files with most flagged lines – quickest wins for cleanup.
+
+Client/Server orphans – what you can delete or move aside.
+
+Email wiring status – confirms the queue is started; you need working SendGrid credentials.

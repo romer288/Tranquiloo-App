@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Therapist Auth</title>
+</head>
+<body>
+    <h1>Therapist Authentication Test</h1>
+    <div id="auth-status">Not authenticated</div>
+    <button onclick="testTherapistAuth()">Test Therapist Authentication</button>
+    
+    <script>
+        async function testTherapistAuth() {
+            try {
+                const response = await fetch('/api/therapist/profile');
+                const data = await response.json();
+                document.getElementById('auth-status').textContent = 
+                    response.ok ? `Authenticated therapist: ${data.email}` : 'Not authenticated';
+            } catch (error) {
+                document.getElementById('auth-status').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

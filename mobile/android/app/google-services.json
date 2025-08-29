@@ -1,0 +1,31 @@
+{
+  "project_info": {
+    "project_number": "522576524084",
+    "project_id": "tranquilo-app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:522576524084:android:androidclientid",
+        "android_client_info": {
+          "package_name": "com.tranquilsupport"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "522576524084-sdbirsc4aitpet16h9pcsk8kdobv30bu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tranquilsupport",
+            "certificate_hash": "4363ef72ec64b312287058c3e4f45ac833bc02c0"
+          }
+        },
+        {
+          "client_id": "522576524084-pr5i8ucn0o6r4ckd0967te9orpiigkt2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ]
+    }
+  ],
+  "configuration_version": "1"
+}

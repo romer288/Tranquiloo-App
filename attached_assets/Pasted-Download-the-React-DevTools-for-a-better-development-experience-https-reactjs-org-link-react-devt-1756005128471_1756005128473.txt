@@ -1,0 +1,477 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+useAuth.tsx:34 Auth hook loaded user: Object
+useAnalyticsData.tsx:61 📊 getAllAnalyses - Combined analyses: 0
+Analytics.tsx:30 🎯 Analytics component rendering - chart order should be 1-8
+Analytics.tsx:31 📊 Analytics Page - allAnalyses count: 0
+Analytics.tsx:32 📊 First analysis sample: undefined
+buildWeeklyTrendsData.ts:17 🔍 buildWeeklyTrendsData - No valid analyses data: Array(0)
+useAnalyticsData.tsx:40 🔄 Analytics hook mounted - forcing data refresh...
+useGoalsData.tsx:17 📊 useGoalsData: Starting to load data...
+useGoalsData.tsx:30 ❌ useGoalsData: Error loading goals and summaries: TypeError: interventionSummaryService.getUserSummaries is not a function
+    at loadData (useGoalsData.tsx:21:36)
+    at useGoalsData.tsx:41:5
+    at commitHookEffectListMount (chunk-RPCDYKBN.js?v=32df4012:16915:34)
+    at commitPassiveMountOnFiber (chunk-RPCDYKBN.js?v=32df4012:18156:19)
+    at commitPassiveMountEffects_complete (chunk-RPCDYKBN.js?v=32df4012:18129:17)
+    at commitPassiveMountEffects_begin (chunk-RPCDYKBN.js?v=32df4012:18119:15)
+    at commitPassiveMountEffects (chunk-RPCDYKBN.js?v=32df4012:18109:11)
+    at flushPassiveEffectsImpl (chunk-RPCDYKBN.js?v=32df4012:19490:11)
+    at flushPassiveEffects (chunk-RPCDYKBN.js?v=32df4012:19447:22)
+    at chunk-RPCDYKBN.js?v=32df4012:19328:17
+loadData @ useGoalsData.tsx:30Understand this error
+useAnalyticsData.tsx:61 📊 getAllAnalyses - Combined analyses: 0
+Analytics.tsx:30 🎯 Analytics component rendering - chart order should be 1-8
+Analytics.tsx:31 📊 Analytics Page - allAnalyses count: 0
+Analytics.tsx:32 📊 First analysis sample: undefined
+buildWeeklyTrendsData.ts:17 🔍 buildWeeklyTrendsData - No valid analyses data: Array(0)
+analyticsService.ts:46 📊 Fetching analytics for user ID: f5136c62-2e4c-4192-892c-e57a805d63ce
+analyticsService.ts:47 📊 Full user object: Object
+analyticsService.ts:136 📊 Analytics data loaded: Object
+useAnalyticsData.tsx:20 📊 useAnalyticsData - Data loaded: Object
+useAnalyticsData.tsx:61 📊 getAllAnalyses - Combined analyses: 42
+Analytics.tsx:30 🎯 Analytics component rendering - chart order should be 1-8
+Analytics.tsx:31 📊 Analytics Page - allAnalyses count: 42
+Analytics.tsx:32 📊 First analysis sample: Object
+buildWeeklyTrendsData.ts:21 🔍 buildWeeklyTrendsData - Processing weekly trends with analyses: 42
+buildWeeklyTrendsData.ts:22 🔍 First analysis data structure: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:150 📊 Final weekly trends data with displayLabel: Array(16)
+buildWeeklyTrendsData.ts:151 📊 Result order check - first date: 2025-05-05 last date: 2025-08-18
+AnxietyChartsSection.tsx:32 🚀 AnxietyChartsSection render - Received analyses: 42
+AnxietyChartsSection.tsx:33 First few analyses: Array(3)
+AnxietyChartsSection.tsx:34 🚀 showOnly: trends
+AnxietyChartsSection.tsx:35 🚀 COMPONENT LOCATION CHECK:     at renderWithHooks (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=32df4012:11548:26)
+AnxietyChartsSection.tsx:36 🚀 FIRST ANALYSIS USER_ID: undefined
+AnxietyChartsSection.tsx:37 ALL UNIQUE USER_IDS: Array(1)
+buildWeeklyTrendsData.ts:21 🔍 buildWeeklyTrendsData - Processing weekly trends with analyses: 42
+buildWeeklyTrendsData.ts:22 🔍 First analysis data structure: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:150 📊 Final weekly trends data with displayLabel: Array(16)
+buildWeeklyTrendsData.ts:151 📊 Result order check - first date: 2025-05-05 last date: 2025-08-18
+AnxietyTrendsChart.tsx:14 📈 AnxietyTrendsChart render - weeklyTrends: Array(16)
+AnxietyChartsSection.tsx:32 🚀 AnxietyChartsSection render - Received analyses: 42
+AnxietyChartsSection.tsx:33 First few analyses: Array(3)
+AnxietyChartsSection.tsx:34 🚀 showOnly: distribution
+AnxietyChartsSection.tsx:35 🚀 COMPONENT LOCATION CHECK:     at renderWithHooks (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=32df4012:11548:26)
+AnxietyChartsSection.tsx:36 🚀 FIRST ANALYSIS USER_ID: undefined
+AnxietyChartsSection.tsx:37 ALL UNIQUE USER_IDS: Array(1)
+buildWeeklyTrendsData.ts:21 🔍 buildWeeklyTrendsData - Processing weekly trends with analyses: 42
+buildWeeklyTrendsData.ts:22 🔍 First analysis data structure: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:150 📊 Final weekly trends data with displayLabel: Array(16)
+buildWeeklyTrendsData.ts:151 📊 Result order check - first date: 2025-05-05 last date: 2025-08-18
+4react_jsx-dev-runtime.js?v=32df4012:64 Warning: Invalid prop `data-replit-metadata` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.
+    at AnxietyDistributionChart (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/components/analytics/AnxietyDistributionChart.tsx:23:37)
+    at AnxietyChartsSection (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/components/analytics/AnxietyChartsSection.tsx:23:3)
+    at div
+    at div
+    at div
+    at div
+    at div
+    at AnalyticsContent (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/pages/Analytics.tsx:38:54)
+    at ProtectedRoute (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/components/ProtectedRoute.tsx:22:27)
+    at Analytics
+    at ProtectedRoute (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/components/ProtectedRoute.tsx:22:27)
+    at main
+    at div
+    at div
+    at Provider (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=32df4012:38:15)
+    at TooltipProvider (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=32df4012:63:5)
+    at https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/components/ui/sidebar.tsx:54:7
+    at ProtectedAppLayout (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/App.tsx?v=KZS5yVPEMDBRITyMCaP_u:54:33)
+    at RenderedRoute (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=32df4012:5643:26)
+    at Routes (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=32df4012:6379:3)
+    at Router (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=32df4012:6322:13)
+    at BrowserRouter (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=32df4012:9403:3)
+    at Provider (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=32df4012:38:15)
+    at TooltipProvider (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=32df4012:63:5)
+    at AuthProvider (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/hooks/useAuth.tsx:23:32)
+    at QueryClientProvider (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=32df4012:2805:3)
+    at App
+printWarning @ react_jsx-dev-runtime.js?v=32df4012:64Understand this error
+MonthlyChartsSection.tsx:17 📅 MonthlyChartsSection - Processing monthly data with analyses: 42
+MonthlyChartsSection.tsx:124 📅 Processed monthly data: Array(4)
+MonthlyChartsSection.tsx:17 📅 MonthlyChartsSection - Processing monthly data with analyses: 42
+MonthlyChartsSection.tsx:124 📅 Processed monthly data: Array(4)
+4recharts.js?v=32df4012:6146 The width(622) and height(350) are both fixed numbers,
+       maybe you don't need to use a ResponsiveContainer.
+warn2 @ recharts.js?v=32df4012:6146Understand this warning
+recharts.js?v=32df4012:6146 The width(498) and height(280) are both fixed numbers,
+       maybe you don't need to use a ResponsiveContainer.
+warn2 @ recharts.js?v=32df4012:6146Understand this warning
+recharts.js?v=32df4012:6146 The width(622) and height(350) are both fixed numbers,
+       maybe you don't need to use a ResponsiveContainer.
+warn2 @ recharts.js?v=32df4012:6146Understand this warning
+useAnalyticsData.tsx:61 📊 getAllAnalyses - Combined analyses: 42
+Analytics.tsx:30 🎯 Analytics component rendering - chart order should be 1-8
+Analytics.tsx:31 📊 Analytics Page - allAnalyses count: 42
+Analytics.tsx:32 📊 First analysis sample: Object
+buildWeeklyTrendsData.ts:21 🔍 buildWeeklyTrendsData - Processing weekly trends with analyses: 42
+buildWeeklyTrendsData.ts:22 🔍 First analysis data structure: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:150 📊 Final weekly trends data with displayLabel: Array(16)
+buildWeeklyTrendsData.ts:151 📊 Result order check - first date: 2025-05-05 last date: 2025-08-18
+analyticsService.ts:46 📊 Fetching analytics for user ID: f5136c62-2e4c-4192-892c-e57a805d63ce
+analyticsService.ts:47 📊 Full user object: Object
+analyticsService.ts:136 📊 Analytics data loaded: Object
+useAnalyticsData.tsx:20 📊 useAnalyticsData - Data loaded: Object
+useAnalyticsData.tsx:61 📊 getAllAnalyses - Combined analyses: 42
+Analytics.tsx:30 🎯 Analytics component rendering - chart order should be 1-8
+Analytics.tsx:31 📊 Analytics Page - allAnalyses count: 42
+Analytics.tsx:32 📊 First analysis sample: Object
+buildWeeklyTrendsData.ts:21 🔍 buildWeeklyTrendsData - Processing weekly trends with analyses: 42
+buildWeeklyTrendsData.ts:22 🔍 First analysis data structure: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:150 📊 Final weekly trends data with displayLabel: Array(16)
+buildWeeklyTrendsData.ts:151 📊 Result order check - first date: 2025-05-05 last date: 2025-08-18
+AnxietyChartsSection.tsx:32 🚀 AnxietyChartsSection render - Received analyses: 42
+AnxietyChartsSection.tsx:33 First few analyses: Array(3)
+AnxietyChartsSection.tsx:34 🚀 showOnly: trends
+AnxietyChartsSection.tsx:35 🚀 COMPONENT LOCATION CHECK:     at renderWithHooks (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=32df4012:11548:26)
+AnxietyChartsSection.tsx:36 🚀 FIRST ANALYSIS USER_ID: undefined
+AnxietyChartsSection.tsx:37 ALL UNIQUE USER_IDS: Array(1)
+buildWeeklyTrendsData.ts:21 🔍 buildWeeklyTrendsData - Processing weekly trends with analyses: 42
+buildWeeklyTrendsData.ts:22 🔍 First analysis data structure: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:150 📊 Final weekly trends data with displayLabel: Array(16)
+buildWeeklyTrendsData.ts:151 📊 Result order check - first date: 2025-05-05 last date: 2025-08-18
+AnxietyTrendsChart.tsx:14 📈 AnxietyTrendsChart render - weeklyTrends: Array(16)
+AnxietyChartsSection.tsx:32 🚀 AnxietyChartsSection render - Received analyses: 42
+AnxietyChartsSection.tsx:33 First few analyses: Array(3)
+AnxietyChartsSection.tsx:34 🚀 showOnly: distribution
+AnxietyChartsSection.tsx:35 🚀 COMPONENT LOCATION CHECK:     at renderWithHooks (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=32df4012:11548:26)
+AnxietyChartsSection.tsx:36 🚀 FIRST ANALYSIS USER_ID: undefined
+AnxietyChartsSection.tsx:37 ALL UNIQUE USER_IDS: Array(1)
+buildWeeklyTrendsData.ts:21 🔍 buildWeeklyTrendsData - Processing weekly trends with analyses: 42
+buildWeeklyTrendsData.ts:22 🔍 First analysis data structure: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:76 🔄 Processing analysis: Object
+buildWeeklyTrendsData.ts:150 📊 Final weekly trends data with displayLabel: Array(16)
+buildWeeklyTrendsData.ts:151 📊 Result order check - first date: 2025-05-05 last date: 2025-08-18
+4react_jsx-dev-runtime.js?v=32df4012:64 Warning: Invalid prop `data-replit-metadata` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.
+    at AnxietyDistributionChart (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/components/analytics/AnxietyDistributionChart.tsx:23:37)
+    at AnxietyChartsSection (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/components/analytics/AnxietyChartsSection.tsx:23:3)
+    at div
+    at div
+    at div
+    at div
+    at div
+    at AnalyticsContent (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/pages/Analytics.tsx:38:54)
+    at ProtectedRoute (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/components/ProtectedRoute.tsx:22:27)
+    at Analytics
+    at ProtectedRoute (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/components/ProtectedRoute.tsx:22:27)
+    at main
+    at div
+    at div
+    at Provider (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=32df4012:38:15)
+    at TooltipProvider (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=32df4012:63:5)
+    at https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/components/ui/sidebar.tsx:54:7
+    at ProtectedAppLayout (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/App.tsx?v=KZS5yVPEMDBRITyMCaP_u:54:33)
+    at RenderedRoute (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=32df4012:5643:26)
+    at Routes (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=32df4012:6379:3)
+    at Router (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=32df4012:6322:13)
+    at BrowserRouter (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=32df4012:9403:3)
+    at Provider (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=32df4012:38:15)
+    at TooltipProvider (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=32df4012:63:5)
+    at AuthProvider (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/src/hooks/useAuth.tsx:23:32)
+    at QueryClientProvider (https://6c8ae978-61a0-44a7-9865-6053862c2e21-00-1ntklv2gkiqw5.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=32df4012:2805:3)
+    at App
+printWarning @ react_jsx-dev-runtime.js?v=32df4012:64Understand this error
+MonthlyChartsSection.tsx:17 📅 MonthlyChartsSection - Processing monthly data with analyses: 42
+MonthlyChartsSection.tsx:124 📅 Processed monthly data: Array(4)
+MonthlyChartsSection.tsx:17 📅 MonthlyChartsSection - Processing monthly data with analyses: 42
+MonthlyChartsSection.tsx:124 📅 Processed monthly data: Array(4)
+4recharts.js?v=32df4012:6146 The width(622) and height(350) are both fixed numbers,
+       maybe you don't need to use a ResponsiveContainer.
+warn2 @ recharts.js?v=32df4012:6146Understand this warning
+recharts.js?v=32df4012:6146 The width(498) and height(280) are both fixed numbers,
+       maybe you don't need to use a ResponsiveContainer.
+warn2 @ recharts.js?v=32df4012:6146Understand this warning
+recharts.js?v=32df4012:6146 The width(622) and height(350) are both fixed numbers,
+       maybe you don't need to use a ResponsiveContainer.

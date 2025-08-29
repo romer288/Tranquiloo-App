@@ -1,0 +1,100 @@
+components/therapist/TreatmentCreation.tsx
+
+Goals list
+
+// was: {treatmentPlan.goals.map(...)}
+{(treatmentPlan?.goals ?? []).map((goal) => ( ... ))}
+
+
+Milestones list
+
+// was: {goal.milestones.map(...)}
+{(goal.milestones ?? []).map((milestone) => ( ... ))}
+
+pages/TherapistDashboard.tsx
+
+Patient records list
+
+// was: {patientRecords.map(...)}
+{(patientRecords ?? []).map((patient) => ( ... ))}
+
+pages/TherapistLicenseVerification.tsx
+
+State/province selects (safe even if constants are not loaded for some reason)
+
+{(US_STATES ?? []).map((state) => ( ... ))}
+{(CANADIAN_PROVINCES ?? []).map((province) => ( ... ))}
+
+pages/TherapistPortal.tsx
+
+Profiles filter & mapping
+
+// was: profiles.filter(...)
+const patientProfiles = (profiles ?? []).filter(p => p.role === 'patient');
+
+// was: patientProfiles.map(...)
+const formattedPatients = (patientProfiles ?? []).map(profile => ({ ... }));
+
+
+Patients list render
+
+// was: {patients.map(...)}
+{(patients ?? []).map((patient) => { ... })}
+
+
+Averages and windows
+
+// was: progressEntries.reduce(...)/progressEntries.length
+const avgScore = (progressEntries?.length
+  ? progressEntries.reduce((sum: number, p: any) => sum + (p.score ?? 0), 0) / progressEntries.length
+  : 0);
+
+// was: processedAnalyses.slice(0, 3)
+processedAnalyses: (processedAnalyses ?? []).slice(0, 3)
+
+
+Iteration guards
+
+// was: analyses.slice(0, 20).forEach(...)
+(analyses ?? []).slice(0, 20).forEach((analysis, index) => { ... });
+
+// was: const recentMessages = messages.slice(0, 10);
+const recentMessages = (messages ?? []).slice(0, 10);
+
+// was: recentMessages.forEach(...)
+(recentMessages ?? []).forEach((msg, index) => { ... });
+
+
+Aggregations
+
+// was: analyses.reduce(...)/analyses.length
+const avgAnxiety = (analyses?.length
+  ? analyses.reduce((sum, a) => sum + (a.anxietyLevel ?? 0), 0) / analyses.length
+  : 0);
+
+// was: allTriggers.reduce((acc, trigger) => { ... })
+const triggerCounts = (allTriggers ?? []).reduce((acc, trigger) => {
+  // ... increment logic ...
+  return acc;
+}, {} as Record<string, number>);
+
+// was: Object.entries(triggerCounts)
+const mostCommonTrigger = Object.entries(triggerCounts ?? {})
+  .sort(([, a], [, b]) => (b as number) - (a as number))[0];
+
+
+Debugging / derived arrays
+
+console.log('DEBUG first 2:', (analyses ?? []).slice(0, 2));
+
+const isolatedPatientAnalyses = (analyses ?? []).filter(a => a.user_id === patientId);
+const isolatedPatientGoals    = (goals ?? []).filter(g => g.user_id === patientId);
+
+console.log('All analyses user IDs:', [...new Set((analyses ?? []).map(a => a.user_id))]);
+console.log('Isolated analyses user IDs:', [...new Set((isolatedPatientAnalyses ?? []).map(a => a.user_id))]);
+
+Why this resolves the therapist breaks (and chat knock-on effects)
+
+Every one of your listed lines could throw when the underlying data is empty, still loading, or just missing a field. Those exceptions bubble up and crash the React tree (Vite overlay), which makes AI chat look dead even though the network/agent may be fine. With ?? [], ?., and safe divides, the UI renders deterministically across empty states, so chat continues to run.
+
+If you want me to sweep all remaining files (not just the lines you listed) with a codemod that enforces these guards repo-wide, I can generate that next.

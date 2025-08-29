@@ -1,0 +1,265 @@
+Critical sign-in problems (clients & therapists)
+1) The app writes the wrong storage key at login (both roles)
+
+What happens
+
+useAuth reads/watches auth_user (via AuthService/safeStorage) and listens for the 'storage' event on that key.
+
+PatientLogin and TherapistLogin save the session to localStorage.setItem('user', ...) (not auth_user).
+
+Result: the auth context never sees the login → ProtectedRoute thinks the user is not logged in → users get sent back to login or bounce around pages even after “success”.
+
+Where
+
+client/src/pages/PatientLogin.tsx and client/src/pages/TherapistLogin.tsx (look for localStorage.setItem('user', ...)).
+
+client/src/hooks/useAuth.tsx listens to 'auth_user'; client/src/services/authService.ts stores to 'auth_user'.
+
+Symptoms you’ll see
+
+Successful sign-in → immediate redirect to dashboard → redirected back to login (not authenticated).
+
+Verification page never recognizes state unless user happens to log in using a component that calls AuthService (which uses auth_user).
+
+Fix
+
+Best: stop writing to 'user' entirely—always use AuthService to set/get the current user.
+
+Minimal surgical patch (until you refactor):
+
+// Replace ALL localStorage.setItem('user', JSON.stringify(userData)) with:
+import { safeStorage } from '@/services/safeStorage';
+
+safeStorage.setItem('auth_user', JSON.stringify(userData));
+// notify the auth hook (storage listeners only fire across tabs)
+window.dispatchEvent(new StorageEvent('storage', { key: 'auth_user' }));
+
+
+In useAuth.tsx, optionally add a fallback on first load:
+
+const legacy = localStorage.getItem('user');
+if (legacy && !safeStorage.getItem('auth_user')) safeStorage.setItem('auth_user', legacy);
+
+2) Therapist verification is enforced inconsistently
+
+What happens
+
+Email/password sign-in on the server allows therapists to pass even if emailVerified === false (grace), but Google OAuth sign-in blocks if not verified. Users get mixed messages.
+
+Where
+
+Server routes.ts under /api/auth/signin includes:
+
+if (!existingProfile.emailVerified && existingProfile.role !== 'therapist') { ... }
+
+
+Patients are blocked; therapists are exempt.
+
+In the Google OAuth callback, everyone is blocked if not verified.
+
+Symptoms you’ll see
+
+Therapists: email/password sometimes work unverified, but Google sign-in says “verify your email first”.
+
+Fix
+
+Pick one policy. If you want verification for both roles:
+
+if (!existingProfile.emailVerified) {
+  return res.status(403).json({ success: false, error: { code: 'EMAIL_NOT_VERIFIED', message: 'Please verify...' }});
+}
+
+
+If you need a therapist grace flow, redirect them to /therapist-license-verification or a grace-period page consistently for both email and Google sign-ins.
+
+3) AuthService.signInWithEmail hard-codes role: 'patient'
+
+What happens
+
+Components that still call AuthService.signInWithEmail send role: 'patient' to /api/auth/signin. If a therapist uses a path that ends up calling this (or a refactor leans on it), they’ll be mis-classified or routed incorrectly.
+
+Where
+
+client/src/services/authService.ts → signInWithEmail(email, password) sends { role: 'patient', isSignIn: true }.
+
+Fix
+
+Either drop the role for sign-in (the server can read it from the profile), or pass a role param from the caller.
+
+Ensure all UI paths hit the same sign-in helper (don’t duplicate fetch calls in page components).
+
+4) Verify page vs. sign-in UX handoff
+
+What happens
+
+On failed sign-in with EMAIL_NOT_VERIFIED, PatientLogin shows an alert only. Users don’t get guided to /verify or auto-redirected.
+
+Fix
+
+On EMAIL_NOT_VERIFIED, do:
+
+navigate(`${ROUTES.verify}?redirect=${encodeURIComponent(ROUTES.dashboard)}`);
+
+5) Session persistence in iframes/private mode is flaky
+
+What happens
+
+safeStorage falls back to in-memory Map if localStorage is blocked → session evaporates on reload.
+
+Fix
+
+For production, prefer HTTP-only cookies (server-set) or ensure localStorage is permitted where the app runs.
+
+At minimum, warn the user when the fallback kicks in (“session won’t persist”).
+
+6) Mobile app signs in without the backend
+
+What happens
+
+mobile/src/contexts/AuthContext.tsx uses @react-native-google-signin/google-signin and never hits your API. No profile creation, no verification, no role enforcement, no server session.
+
+Symptoms
+
+Mobile users appear “signed in” locally but backend features (e.g., therapist linking, reports) won’t work consistently.
+
+Fix
+
+After Google sign-in on mobile, call your server /api/auth/google-signin (or /auth/google web OAuth with deep link callback) to create/update the profile and return the same user shape the web uses. Save that to the same key (auth_user) for parity.
+
+Other functional problems (non-auth) worth fixing
+
+Route name/query mismatches
+
+I found references such as /login?error=oauth_failed (from server redirects) and a few non-path names (from mobile’s stack: Dashboard, TherapistDashboard) that don’t exist as web paths.
+
+See: sandbox:/mnt/data/updated_nav_missing_declarations.csv (5 entries) and updated_nav_unreferenced.csv (20 entries).
+
+Fix: keep web routes as paths only (use ROUTES.*) and treat query strings via useSearchParams (don’t try to declare them as routes). Mobile stack names are fine—but don’t reuse them in web code.
+
+Duplicate/overlapping endpoints
+
+Two password-reset endpoints exist in server/routes.ts. Keep one path and one handler to avoid drift.
+
+Therapist sign-up path duplication
+
+Users can sign up as therapist from PatientLogin or TherapistLogin. The flows differ slightly (copy, redirects). Consolidate to one UX.
+
+Button wiring still missing in places (reduced, but not zero)
+
+68 elements still have no handler across web + mobile. Open the “Buttons MISSING handlers (auth-related files)” table to knock these out. Prioritize auth, nav, and critical actions.
+
+How the sign-in flows work now (intended vs current)
+Patient (web)
+
+Email/Password
+
+POST /api/auth/signin with { email, password, isSignIn: true }.
+
+Server validates, requires emailVerified; returns { user }.
+
+Bug: page stores to 'user' instead of 'auth_user' → auth context doesn’t update → ProtectedRoute thinks unauthenticated.
+
+Google
+
+Redirect to /auth/google?role=patient|therapist&returnUrl=/dashboard or /therapist-dashboard.
+
+Callback redirects back with success (or /login?error=...).
+
+Verify still required; if not verified, callback returns to /login?error=verification_required.
+
+Therapist (web)
+
+Email/Password
+
+Same endpoint; server currently allows unverified therapists in that branch.
+
+Bug: same storage key issue after success.
+
+Google
+
+Same OAuth, but verification is enforced consistently here.
+
+On first sign-up via Google, server sets emailVerified: false and prompts verification.
+
+Mobile (both roles)
+
+Signs in with Google client-side only; no server call, so no account verification and no server session.
+
+Concrete patches
+A) Unify session storage (biggest win; 10-minute fix)
+
+Replace all manual localStorage.setItem('user', ...) with:
+
+import { safeStorage } from '@/services/safeStorage';
+
+const userData = { /* id, email, username, role, emailVerified, authMethod */ };
+safeStorage.setItem('auth_user', JSON.stringify(userData));
+window.dispatchEvent(new StorageEvent('storage', { key: 'auth_user' }));
+
+
+…and remove any other places that write 'user'.
+
+B) Make AuthService.signInWithEmail role-agnostic
+- body: JSON.stringify({ email, password, role: 'patient', isSignIn: true })
++ body: JSON.stringify({ email, password, isSignIn: true })
+
+C) Enforce verification consistently (server)
+- if (!existingProfile.emailVerified && existingProfile.role !== 'therapist') {
++ if (!existingProfile.emailVerified) {
+    return res.status(403).json({ success: false, error: { code: 'EMAIL_NOT_VERIFIED', message: 'Please verify...' }});
+}
+
+
+If you need a therapist grace flow, redirect therapists to /therapist-license-verification in both email and Google paths until verified/licensed.
+
+D) On EMAIL_NOT_VERIFIED → send users to /verify
+if (signInResult.error?.code === 'EMAIL_NOT_VERIFIED') {
+  navigate(`${ROUTES.verify}?redirect=${encodeURIComponent(ROUTES.dashboard)}`);
+  return;
+}
+
+E) Mobile → server handshake
+
+After Google sign-in on mobile, POST the Google token to your backend (e.g., /api/auth/google-signin) and save the returned server user to the same key (auth_user). That keeps web and mobile in sync and enables verification/licensing.
+
+F) Clean up routes & redirects
+
+Use ROUTES constants everywhere in web.
+
+In OAuth callback, honor state.returnUrl (it’s already included) and make sure it matches your route constants (/dashboard or /therapist-dashboard).
+
+What to test (quick manual checklist)
+
+Patients
+
+Sign-in with wrong password → error toast and no session set.
+
+Sign-in with unverified email → redirect to /verify (resend works; return after verify).
+
+Google sign-in → success path to /dashboard.
+
+Refresh persists session (key = auth_user).
+
+Therapists
+
+Email sign-up → must verify before sign-in (consistent across email/Google).
+
+Email sign-in with verified account → /therapist-dashboard.
+
+Google sign-in → same behavior as email (no special casing).
+
+Missing license → redirect to /therapist-license-verification (if that’s policy).
+
+Mobile
+
+Google sign-in then call backend → profile created; verification enforced; role respected.
+
+If you’d like, I can generate a small PR-style patch that:
+
+Replaces all 'user' writes with auth_user via safeStorage.
+
+Makes AuthService.signInWithEmail role-agnostic.
+
+Updates Patient/Therapist login to redirect to /verify on EMAIL_NOT_VERIFIED.
+
+That alone fixes the majority of sign-in pains you’re seeing.
