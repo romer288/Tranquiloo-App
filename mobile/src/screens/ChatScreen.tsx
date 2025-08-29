@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
+import Tts from 'react-native-tts';
 
 interface Message {
   id: string;
@@ -27,6 +28,20 @@ const ChatScreen: React.FC = () => {
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Configure TTS once
+  useEffect(() => {
+    Tts.setDefaultLanguage('en-US');
+    Tts.setDucking(true);
+    speak(messages[0].text);
+  }, []);
+
+  const speak = (text: string) => {
+    if (!text) return;
+    const isSpanish = /[\u00C0-\u00FF]/i.test(text);
+    Tts.setDefaultLanguage(isSpanish ? 'es-MX' : 'en-US');
+    Tts.speak(text);
+  };
 
   const sendMessage = async () => {
     if (!inputText.trim() || isLoading) return;
@@ -53,6 +68,7 @@ const ChatScreen: React.FC = () => {
         };
         setMessages(prev => [...prev, aiResponse]);
         setIsLoading(false);
+        speak(aiResponse.text);
       }, 1500);
     } catch (error) {
       Alert.alert('Error', 'Failed to send message. Please try again.');

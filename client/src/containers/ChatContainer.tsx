@@ -149,7 +149,10 @@ const ChatContainer = ({ sessionId }: ChatContainerProps) => {
   }, [messages, currentAnxietyAnalysis, triggerGoalSuggestion, showSuggestionModal, isTyping, languageContext, handleMaybeShowCrisis]);
 
   return (
-    <div className="relative z-0 min-h-screen bg-gray-50 flex flex-col pb-20 md:pb-0">
+    // Add extra bottom padding so the mobile navigation bar remains clickable.
+    // Without this, the chat container can overlap the fixed nav and intercept
+    // touch events, leaving navigation links unresponsive on phones.
+    <div className="relative z-0 min-h-screen bg-gray-50 flex flex-col pb-32 md:pb-0">
       <ChatHeader
         speechSynthesisSupported={speechSynthesisSupported}
         speechSupported={speechSupported}

@@ -68,3 +68,27 @@ Authentication behavior: When therapists try to sign in without having an accoun
 - **TypeScript**: Type safety across the application stack.
 - **ESBuild**: JavaScript bundler.
 - **Drizzle Kit**: Database migration and schema management.
+
+## Replit Deployment
+
+To run this project on [Replit](https://replit.com):
+
+1. **Create a new Repl** from this repository.
+2. **Add environment variables** in the Replit *Secrets* panel:
+   - `DATABASE_URL`
+   - `ANTHROPIC_API_KEY`
+   - `OPENAI_API_KEY`
+   - `GOOGLE_CLIENT_ID`
+   - (optional) `SENDGRID_API_KEY`
+3. **Install dependencies** and start the development server:
+   ```bash
+   npm install
+   npm run dev
+   ```
+   The web client and API will be served on port `5000`.
+4. **Apply database schema** when needed:
+   ```bash
+   npm run db:push
+   ```
+
+Replit automatically exposes the running server. Use the generated URL to test the application from a browser or mobile device.

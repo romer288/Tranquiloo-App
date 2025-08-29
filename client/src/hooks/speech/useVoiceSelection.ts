@@ -3,17 +3,16 @@ import { useMemo } from 'react';
 export type Lang = 'en' | 'es';
 
 const EN_PREFERENCES = [
-  // Try a British accent female voice first
-  'Microsoft Hazel Online (Natural) - English (United Kingdom)',
-  'Microsoft Libby Online (Natural) - English (United Kingdom)',
-  'Google UK English Female',
-  // US fallback
+  // Prefer natural‑sounding US voices first
   'Microsoft Aria Online (Natural) - English (United States)',
   'Microsoft Jenny Online (Natural) - English (United States)',
   'Google US English',
-  // macOS
   'Samantha',
   'Victoria',
+  // Fall back to any other available English voice
+  'Microsoft Hazel Online (Natural) - English (United Kingdom)',
+  'Microsoft Libby Online (Natural) - English (United Kingdom)',
+  'Google UK English Female',
 ];
 
 const ES_PREFERENCES = [
@@ -22,7 +21,6 @@ const ES_PREFERENCES = [
   'Microsoft Dalia Online (Natural) - Spanish (Mexico)',
   'Google español de Estados Unidos',
   'Google español',
-  // macOS
   'Paulina',
   'Monica',
 ];
@@ -52,12 +50,14 @@ export const useVoiceSelection = () => {
         return (
           pickFirstAvailable(ES_PREFERENCES, voices) ||
           voices.find(v => v.lang?.toLowerCase().startsWith('es-')) ||
+          voices[0] ||
           null
         );
       }
       return (
         pickFirstAvailable(EN_PREFERENCES, voices) ||
         voices.find(v => v.lang?.toLowerCase().startsWith('en-')) ||
+        voices[0] ||
         null
       );
     },

@@ -25,9 +25,17 @@ export const useChatSession = () => {
         return;
       }
       
-      const session = await chatService.createChatSession(user.id, 'Chat with Vanessa');
-      setCurrentSession(session);
-      console.log('Chat session created successfully:', session);
+      // Try to reuse the most recent session to keep history
+      const sessions = await chatService.getChatSessions(user.id);
+      if (sessions && sessions.length > 0) {
+        // Assume sessions are returned sorted by updatedAt desc
+        setCurrentSession(sessions[0]);
+        console.log('Loaded existing chat session:', sessions[0]);
+      } else {
+        const session = await chatService.createChatSession(user.id, 'Chat with Vanessa');
+        setCurrentSession(session);
+        console.log('Chat session created successfully:', session);
+      }
     } catch (error) {
       console.error('Failed to initialize chat:', error);
       toast({

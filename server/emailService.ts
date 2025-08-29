@@ -318,6 +318,19 @@ This email was sent to ${email}. If you didn't create this account, please conta
       return { success: false };
     }
   }
+
+  async sendTherapistWelcomeEmail(email: string, firstName: string, token: string): Promise<{ success: boolean }> {
+    const verificationUrl = `${process.env.REPLIT_URL || 'http://localhost:5000'}/verify-email?token=${token}`;
+    const subject = 'Welcome to Tranquiloo - Verify your email';
+    const html = `<p>Hello ${firstName},</p><p>Please verify your therapist account by clicking <a href="${verificationUrl}">here</a>.</p>`;
+    const success = await this.sendEmail({
+      to: email,
+      from: 'info@tranquiloo-app.com',
+      subject,
+      html,
+    });
+    return { success };
+  }
 }
 
 export const emailService = new EmailService();
