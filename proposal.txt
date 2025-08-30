@@ -1,0 +1,37 @@
+Hi,
+
+I checked your git repo and I'm opening this PR because I'm genuinely interested in contributing to Tranquiloo - this project reminds me of AI-driven apps I've worked on.
+
+I am Haris and I've worked in the full-stack (React + Node.js/Express) space for 4+ years now. One of those projects went on to integrate OpenAI with custom analytics dashboards and scaled to over 100k users a month, which was brilliant to see.
+
+Portfolio example:
+https://bntr.ai/
+https://abby.gg/
+
+After reviewing your codebase, I have a couple of questions and suggestions:
+
+Questions
+- Do you have a preferred TTS/voice provider in mind, or are you open to recommendations (for Spanish + natural English)?
+- For deployment, would you prefer Vercel/Netlify for speed, or a containerized setup (Docker) for more control?
+
+Improvement Suggestions
+
+1. Asset Management Optimization:
+   Currently, I notice you have many assets in the `attached_assets/` folder. I'd recommend migrating all static assets (images, documents, etc.) to a cloud storage solution like:
+   - Supabase Storage Buckets (since you're already using Supabase/PostgreSQL)
+   - AWS S3 with CloudFront CDN for global performance
+   This would significantly improve load times, reduce repository size, and provide better scalability.
+
+2. Enhanced Voice Integration:
+   Given the therapeutic nature of the app, implementing a robust TTS system would greatly enhance user experience. I'd suggest:
+   - ElevenLabs for highly natural, therapeutic-appropriate voices
+   - Azure Cognitive Services Speech for multilingual support (Spanish/English)
+   - Custom voice training for consistent AI companion personalities (Vanessa & Monica)
+
+Why I'm interested:
+Your app's architecture is solid - the separation of concerns between client/server/mobile, the HIPAA-compliant therapist portal, and the anxiety analysis system show excellent planning. I'd love to contribute to scaling this further.
+
+Are you available for a quick chat to discuss these suggestions? Or feel free to respond here with your thoughts.
+
+Best,
+Haris
