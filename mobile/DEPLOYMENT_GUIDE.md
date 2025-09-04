@@ -4,6 +4,8 @@ This guide covers deploying the React Native mobile app to both Google Play Stor
 
 ## Pre-Deployment Checklist
 
+> **Security Warning:** Never commit real keystore passwords or other secrets to version control. Store them in environment variables or a secret manager.
+
 ### 1. OAuth Configuration Complete
 - ✅ Web OAuth Client: `522576524084-pr5i8ucn0o6r4ckd0967te9orpiigkt2.apps.googleusercontent.com`
 - ✅ iOS OAuth Client: `522576524084-28q57dbq1hk0b5e24oaklp9hkn0v6jra.apps.googleusercontent.com` 
@@ -31,12 +33,19 @@ keytool -genkey -v -keystore release.keystore -alias release -keyalg RSA -keysiz
 ```
 
 ### Step 2: Configure Release Signing
-Add to `android/gradle.properties`:
+Add to `android/gradle.properties` (use environment variables or a secret manager for the actual values):
 ```
 RELEASE_STORE_FILE=release.keystore
 RELEASE_KEY_ALIAS=release
-RELEASE_STORE_PASSWORD=your_store_password
-RELEASE_KEY_PASSWORD=your_key_password
+RELEASE_STORE_PASSWORD=${RELEASE_STORE_PASSWORD}
+RELEASE_KEY_PASSWORD=${RELEASE_KEY_PASSWORD}
+```
+
+Set the real passwords in your environment or CI/CD secret manager:
+
+```
+export RELEASE_STORE_PASSWORD="your_store_password"
+export RELEASE_KEY_PASSWORD="your_key_password"
 ```
 
 ### Step 3: Build Release APK
