@@ -34,9 +34,22 @@ npm install
 
 ### iOS Setup
 
-1. Place `GoogleService-Info.plist` in `ios/TranquilSupport/`
-2. Install iOS dependencies: `cd ios && pod install`
-3. Run: `npm run ios`
+1. Copy `ios/TranquilSupport/GoogleService-Info.plist.example` to `ios/TranquilSupport/GoogleService-Info.plist`
+2. Populate the new file with real values using environment variables or CI secrets (see below)
+3. Install iOS dependencies: `cd ios && pod install`
+4. Run: `npm run ios`
+
+### Supplying API Keys Securely
+
+The repo only contains a template `GoogleService-Info.plist.example` with a dummy `API_KEY`.
+During development or automated builds, inject the real file from a secure source:
+
+```bash
+# decode base64 plist from IOS_GOOGLE_SERVICE_INFO env var
+echo "$IOS_GOOGLE_SERVICE_INFO" | base64 --decode > ios/TranquilSupport/GoogleService-Info.plist
+```
+
+Never commit the real `GoogleService-Info.plist` to version control.
 
 ## OAuth Configuration
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
+<!-- Placeholder config. Supply real keys at build time via secure tooling. -->
 <dict>
 	<key>CLIENT_ID</key>
 	<string>522576524084-28q57dbq1hk0b5e24oaklp9hkn0v6jra.apps.googleusercontent.com</string>
@@ -28,7 +29,7 @@
 	<true/>
 	<key>IS_SIGNIN_ENABLED</key>
 	<true/>
-	<key>GOOGLE_APP_ID</key>
-	<string>1:522576524084:ios:iosclientid</string>
+        <key>GOOGLE_APP_ID</key>
+        <string>1:522576524084:ios:iosclientid</string>
 </dict>
 </plist>
