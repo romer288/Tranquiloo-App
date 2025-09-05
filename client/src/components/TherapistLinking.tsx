@@ -72,12 +72,18 @@ const TherapistLinking: React.FC<TherapistLinkingProps> = ({ onComplete }) => {
   const handleConfirm = async () => {
     try {
       const contactValue = therapistInfo.contactMethod === 'email' ? therapistInfo.email : therapistInfo.phone;
-      
-      // Get current user email (in production this would come from auth context)
-      const currentUserEmail = localStorage.getItem('userEmail') || 'arth.rombus@gmail.com'; // Fallback for testing
-      
+
+      // Get current user email, preferring auth context with an environment-configured fallback
+      const user = await AuthService.getCurrentUser();
+      const currentUserEmail =
+        localStorage.getItem('userEmail') ||
+        user?.email ||
+        import.meta.env.VITE_FALLBACK_USER_EMAIL ||
+        '';
+
       // Send connection request to our backend API with patient email
-      const response = await fetch('/api/therapist-connections', {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await fetch(`${apiBaseUrl}/api/therapist-connections`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -60,7 +60,8 @@ const ContactTherapist = () => {
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
       
       // Send connection request to therapist
-      const response = await fetch('/api/therapist-connections', {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await fetch(`${apiBaseUrl}/api/therapist-connections`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
