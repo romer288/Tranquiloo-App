@@ -5,3 +5,5 @@ server/public
 vite.config.ts.*
 *.tar.gz
 mobile/ios/TranquilSupport/GoogleService-Info.plist
+mobile/android/app/google-services.json
+mobile/android/app/debug.keystore

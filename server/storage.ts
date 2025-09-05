@@ -11,7 +11,7 @@ import {
   type NormalizedInterventionSummary
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, gt } from "drizzle-orm";
 
 export interface IStorage {
   // Profile management
@@ -421,16 +421,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   async resetPassword(token: string, newPassword: string): Promise<Profile | undefined> {
+    // Ensure token is valid and not expired
+    const now = new Date();
+    const existing = await db
+      .select()
+      .from(profiles)
+      .where(and(eq(profiles.passwordResetToken, token), gt(profiles.passwordResetExpires, now)))
+      .limit(1);
+
+    const profile = existing[0];
+    if (!profile) return undefined;
+
     // Hash the new password before storing
     const bcrypt = await import('bcryptjs');
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    
-    const result = await db.update(profiles).set({
-      hashedPassword: hashedPassword,
-      passwordResetToken: null,
-      passwordResetExpires: null,
-      updatedAt: new Date()
-    }).where(eq(profiles.passwordResetToken, token)).returning();
+
+    const result = await db
+      .update(profiles)
+      .set({
+        hashedPassword,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(profiles.id, profile.id))
+      .returning();
     return result[0];
   }
 

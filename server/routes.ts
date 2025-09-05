@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import * as bcrypt from "bcryptjs";
 import { emailService } from "./emailService";
+import { randomBytes } from "crypto";
 import {
   insertProfileSchema, insertChatSessionSchema, insertChatMessageSchema,
   insertAnxietyAnalysisSchema, insertTherapistSchema, insertUserTherapistSchema,
@@ -472,7 +473,7 @@ Key therapeutic themes addressed:
       }
       
       // Generate reset token
-      const resetToken = `reset_${Date.now()}_${Math.random().toString(36).substr(2, 15)}`;
+      const resetToken = randomBytes(32).toString('hex');
       const expires = new Date(Date.now() + 3600000); // 1 hour
       
       await storage.setPasswordResetToken(email, resetToken, expires);
@@ -823,7 +824,7 @@ Key therapeutic themes addressed:
         console.log('Created new user profile:', createdProfile.id);
         
         // Generate email verification token
-        const verificationToken = `verify_${Date.now()}_${Math.random().toString(36).substr(2, 15)}`;
+        const verificationToken = randomBytes(32).toString('hex');
         await storage.updateProfileVerification(createdProfile.id, verificationToken);
         
         // Send verification email for both therapists and patients
@@ -968,7 +969,7 @@ Key therapeutic themes addressed:
       }
       
       // Generate reset token
-      const resetToken = `reset_${Date.now()}_${Math.random().toString(36).substr(2, 15)}`;
+      const resetToken = randomBytes(32).toString('hex');
       await storage.updateProfileVerification(existingProfile.id, resetToken);
       
       // Create reset email
@@ -1098,7 +1099,7 @@ Key therapeutic themes addressed:
         console.log('Created new Google OAuth user profile:', createdProfile.id);
         
         // Generate verification token for ALL users (including Google OAuth)
-        const verificationToken = Date.now().toString(36) + Math.random().toString(36).substring(2);
+      const verificationToken = randomBytes(32).toString('hex');
         await storage.createEmailVerification(createdProfile.email!, verificationToken);
         
         // Send appropriate verification email based on role
@@ -1222,7 +1223,7 @@ Key therapeutic themes addressed:
       }
       
       // Generate new verification token
-      const verificationToken = `verify_${Date.now()}_${Math.random().toString(36).substr(2, 15)}`;
+      const verificationToken = randomBytes(32).toString('hex');
       await storage.updateProfileVerification(profile.id, verificationToken);
       
       // Send verification email based on role
@@ -1264,7 +1265,7 @@ Key therapeutic themes addressed:
   // Google OAuth initiation route for iPhone Safari
   app.get('/auth/google', (req, res) => {
     // Use the correct Web Client ID
-    const clientId = '522576524084-pr5i8ucn0o6r4ckd0967te9orpiigkt2.apps.googleusercontent.com';
+    const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID as string;
     
     // Get correct protocol/host from proxy headers
     const forwardedProto = (req.headers['x-forwarded-proto'] as string)?.split(',')[0];
@@ -1323,8 +1324,8 @@ Key therapeutic themes addressed:
       }
       
       // Exchange code for tokens
-      const clientId = '522576524084-pr5i8ucn0o6r4ckd0967te9orpiigkt2.apps.googleusercontent.com';
-      const clientSecret = process.env.GOOGLE_CLIENT_ID; // The GOCSPX value is actually the client secret
+      const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID as string;
+      const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET as string;
       
       // Get correct protocol/host from proxy headers
       const forwardedProto = (req.headers['x-forwarded-proto'] as string)?.split(',')[0];
@@ -1333,8 +1334,8 @@ Key therapeutic themes addressed:
       const host = forwardedHost || req.get('host');
       const redirectUri = `${protocol}://${host}/auth/google/callback`;
       
-      if (!clientSecret) {
-        console.error('GOOGLE_CLIENT_SECRET not configured');
+      if (!clientId || !clientSecret) {
+        console.error('Google OAuth not configured: set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET');
         return res.redirect('/login?error=server_config');
       }
       
@@ -1434,7 +1435,7 @@ Key therapeutic themes addressed:
       });
       
       // Generate verification token and update profile
-      const verificationToken = `verify_${Date.now()}_${Math.random().toString(36).substr(2, 15)}`;
+      const verificationToken = randomBytes(32).toString('hex');
       await storage.updateProfileVerification(newProfile.id, verificationToken);
       
       // Send verification email
@@ -1649,7 +1650,7 @@ Key therapeutic themes addressed:
     console.log(`Manual test: Sending verification email to ${email}`);
     
     try {
-      const verificationToken = 'test_' + Date.now().toString(36) + Math.random().toString(36).substring(2);
+      const verificationToken = randomBytes(16).toString('hex');
       
       const emailResponse = await emailService.sendVerificationEmail(
         email,
