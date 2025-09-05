@@ -82,7 +82,8 @@ const TherapistLinking: React.FC<TherapistLinkingProps> = ({ onComplete }) => {
         '';
 
       // Send connection request to our backend API with patient email
-      const response = await fetch('/api/therapist-connections', {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await fetch(`${apiBaseUrl}/api/therapist-connections`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
