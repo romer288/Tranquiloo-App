@@ -1,6 +1,9 @@
 
+//Author: Harsh Dugar
+
 import React from 'react';
 import { Language } from '@/types/chat';
+import { detectLanguage } from '@/utils/languageDetection';
 
 interface UseInteractionHandlersProps {
   isListening: boolean;
@@ -92,36 +95,21 @@ export const useInteractionHandlers = ({
 
   // Simplified speak function
   const handleSpeakText = React.useCallback(async (text: string, language?: Language) => {
-    console.log('🔊 🎯 handleSpeakText called:', { 
-      text: text.substring(0, 50), 
-      language, 
-      currentlySpeaking: isSpeaking 
-    });
-    
-    if (!text.trim()) {
-      console.log('🔊 Empty text provided, skipping speech');
-      return;
-    }
-    
+    if (!text.trim()) return;
+
     try {
-      const targetLanguage = language || updateLanguageContext(text, false);
-      console.log('🔊 🎯 Starting speech with language:', targetLanguage);
-      
+      const targetLanguage = language || detectLanguage(text);
       setSpeechInProgress(true);
-      
-      // Simple call to speakText with proper await
       await speakText(text, targetLanguage);
-      console.log('🔊 🎯 Speech completed successfully');
-      
+
     } catch (error) {
-      console.error('🔊 🎯 Speech error:', error);
+      console.error('Speech error:', error);
     } finally {
       setSpeechInProgress(false);
     }
-  }, [speakText, updateLanguageContext, setSpeechInProgress, isSpeaking]);
+  }, [speakText, setSpeechInProgress]);
 
   const handleStopSpeaking = React.useCallback(() => {
-    console.log('🔊 Force stopping all speech and listening');
     stopSpeaking();
     setSpeechInProgress(false);
   }, [stopSpeaking, setSpeechInProgress]);

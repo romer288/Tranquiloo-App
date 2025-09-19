@@ -11,8 +11,8 @@ import { format } from 'date-fns';
 interface ChatSession {
   id: string;
   userId: string;
-  companionType: 'vanessa' | 'monica';
-  sessionTitle?: string;
+  aiCompanion: 'vanessa' | 'monica';
+  title?: string;
   sessionSummary?: string;
   anxietyLevel?: number;
   createdAt: string;
@@ -40,23 +40,41 @@ interface AnxietyAnalysis {
 const ChatHistory = () => {
   const { user } = useAuth();
 
-  const { data: sessionsData = [], isLoading: sessionsLoading } = useQuery({
-    queryKey: ['/api/chat-sessions'],
+  const { data: sessionsData = [], isLoading: sessionsLoading, error: sessionsError } = useQuery({
+    queryKey: [`/api/users/${user?.id}/chat-sessions`],
+    queryFn: async () => {
+      const response = await fetch(`/api/users/${user?.id}/chat-sessions`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch chat sessions');
+      }
+      return response.json();
+    },
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
-  const { data: analysesData = [] } = useQuery({
-    queryKey: ['/api/anxiety-analyses'],
+  const { data: analysesData = [], error: analysesError } = useQuery({
+    queryKey: [`/api/users/${user?.id}/anxiety-analyses`],
+    queryFn: async () => {
+      const response = await fetch(`/api/users/${user?.id}/anxiety-analyses`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch anxiety analyses');
+      }
+      return response.json();
+    },
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
 
-  // Filter sessions and analyses for current user
-  const sessions = Array.isArray(sessionsData) ? sessionsData.filter(s => s.userId === user?.id) : [];
-  const recentAnalyses = Array.isArray(analysesData) ? analysesData.filter(a => a.userId === user?.id) : [];
+  // Sessions and analyses are already filtered by user ID from the API
+  const sessions = Array.isArray(sessionsData)
+    ? sessionsData.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    : [];
+  const recentAnalyses = Array.isArray(analysesData)
+    ? analysesData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    : [];
 
   const getAnxietyLevelColor = (level: number) => {
     if (level <= 3) return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
@@ -112,13 +130,21 @@ const ChatHistory = () => {
                 <div className="space-y-4">
                   {sessions.map((session: ChatSession) => (
                     <div key={session.id} className="border rounded-lg p-4 space-y-2" data-testid={`card-session-${session.id}`}>
+                      {/* Main title - show actual conversation title or fallback */}
+                      <h3 className="font-medium text-lg" data-testid={`text-session-title-${session.id}`}>
+                        {session.title && session.title !== 'New Chat Session' ? session.title : 'Untitled Chat'}
+                      </h3>
+
                       <div className="flex items-center justify-between">
-                        <Badge 
-                          variant={session.companionType === 'vanessa' ? 'default' : 'secondary'}
-                          data-testid={`badge-companion-${session.companionType}`}
-                        >
-                          {session.companionType === 'vanessa' ? '🇺🇸 Vanessa' : '🇪🇸 Monica'}
-                        </Badge>
+                        <div className="flex items-center space-x-2">
+                          <Badge
+                            variant="outline"
+                            className="text-xs"
+                            data-testid={`badge-companion-${session.aiCompanion}`}
+                          >
+                            {session.aiCompanion === 'vanessa' ? '🇺🇸 Vanessa' : '🇪🇸 Monica'}
+                          </Badge>
+                        </div>
                         <div className="flex items-center text-sm text-muted-foreground">
                           <Calendar className="h-4 w-4 mr-1" />
                           <span data-testid={`text-session-date-${session.id}`}>
@@ -126,12 +152,6 @@ const ChatHistory = () => {
                           </span>
                         </div>
                       </div>
-                      
-                      {session.sessionTitle && (
-                        <h3 className="font-medium" data-testid={`text-session-title-${session.id}`}>
-                          {session.sessionTitle}
-                        </h3>
-                      )}
                       
                       {session.sessionSummary && (
                         <p className="text-sm text-muted-foreground" data-testid={`text-session-summary-${session.id}`}>

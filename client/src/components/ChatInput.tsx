@@ -106,8 +106,8 @@ const ChatInput = ({
           <button
             onClick={onToggleAutoSpeak}
             className={`flex items-center gap-2 px-3 py-1 rounded-md text-sm transition-colors ${
-              autoSpeak 
-                ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
+              autoSpeak
+                ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
             title={autoSpeak ? 'AI voice is ON - Click to turn OFF' : 'AI voice is OFF - Click to turn ON'}
@@ -147,7 +147,7 @@ const ChatInput = ({
           onChange={(e) => {
             onUserGesture?.(); // Unlock speech on first keystroke
             console.log('📝 Input change:', e.target.value);
-            
+
             // Stop speech when user starts typing
             if (isSpeaking && onStopSpeaking) {
               console.log('🔊 Stopping speech due to typing');

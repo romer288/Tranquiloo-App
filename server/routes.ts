@@ -1759,6 +1759,26 @@ Key therapeutic themes addressed:
     }
   });
 
+  app.patch("/api/chat-sessions/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { title } = req.body;
+
+      if (!title) {
+        return res.status(400).json({ error: "Title is required" });
+      }
+
+      const updatedSession = await storage.updateChatSession(id, { title });
+      if (!updatedSession) {
+        return res.status(404).json({ error: "Chat session not found" });
+      }
+
+      res.json({ success: true, session: updatedSession });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update chat session title" });
+    }
+  });
+
   // Chat message routes
   app.get("/api/chat-sessions/:sessionId/messages", async (req, res) => {
     try {
@@ -1782,6 +1802,30 @@ Key therapeutic themes addressed:
   app.post("/api/chat-messages", async (req, res) => {
     try {
       const validatedData = insertChatMessageSchema.parse(req.body);
+
+      // Check for duplicate messages using raw database data (not deduplicated)
+      const existingMessages = await storage.getRawChatMessagesBySession(validatedData.sessionId);
+      const tenSecondsAgo = new Date(Date.now() - 10000);
+
+      const recentDuplicate = existingMessages.find(msg => {
+        const isContentMatch = msg.content === validatedData.content;
+        const isSenderMatch = msg.sender === validatedData.sender;
+        const isRecent = msg.createdAt && new Date(msg.createdAt) > tenSecondsAgo;
+
+        return isContentMatch && isSenderMatch && isRecent;
+      });
+
+      console.log(`🔍 Checking for duplicates: "${validatedData.content}" by ${validatedData.sender}`);
+      console.log(`📊 Found ${existingMessages.length} existing messages in DB`);
+      if (recentDuplicate) {
+        console.log(`🚫 Duplicate found: ${recentDuplicate.id}`);
+      } else {
+        console.log(`✅ No duplicate found, proceeding to save`);
+      }
+
+      if (recentDuplicate) {
+        return res.status(200).json(recentDuplicate);
+      }
       const message = await storage.createChatMessage(validatedData);
       res.status(201).json(message);
     } catch (error) {
@@ -1862,8 +1906,11 @@ Key therapeutic themes addressed:
                           lowerMessage.includes('firing') || lowerMessage.includes('gaza') ||
                           lowerMessage.includes('war') || lowerMessage.includes('attack');
           
+          // Detect message language for appropriate response
+          const isSpanish = /[¡¿ñáéíóúü]|hola|ayuda|gracias|cómo|está|soy|tengo|estoy|muy|todo|nada|aquí|por|favor/i.test(message);
+
           // Call Claude API with improved therapeutic prompt
-          const analysisPrompt = `You are Vanessa, a trained crisis intervention AI companion. A user is reaching out with: "${message}"
+          const analysisPrompt = `You are ${isSpanish ? 'Vanessa, una compañera AI especializada en intervención de crisis' : 'Vanessa, a trained crisis intervention AI companion'}. A user is reaching out with: "${message}"
 
 ${conversationHistory.length > 0 ? `Previous messages showing escalation: ${conversationHistory.slice(-3).join(' | ')}` : ''}
 
@@ -1908,13 +1955,14 @@ Response rules:
 - No long explanations or multiple questions
 - Direct, calm, instructive tone
 - One main action + one backup resource
+- ${isSpanish ? 'RESPONDER EN ESPAÑOL' : 'RESPOND IN ENGLISH'}
 
 Respond ONLY with valid JSON:
 {
   "anxietyLevel": number from 1-10,
   "triggers": ["max 3 triggers"],
   "copingStrategies": ["max 4 brief, actionable strategies"],
-  "personalizedResponse": "BRIEF 2-3 sentence response. Direct action first. Crisis line if needed."
+  "personalizedResponse": "${isSpanish ? 'Respuesta BREVE en español de 2-3 oraciones. Acción directa primero.' : 'BRIEF 2-3 sentence response in English. Direct action first. Crisis line if needed.'}"
 }`;
           
           const response = await fetch('https://api.anthropic.com/v1/messages', {

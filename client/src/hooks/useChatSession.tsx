@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { AICompanion, Language } from '@/types/chat';
 
-export const useChatSession = () => {
+export const useChatSession = (existingSessionId?: string | null) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
@@ -13,10 +13,54 @@ export const useChatSession = () => {
   const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
 
   useEffect(() => {
-    if (user && !currentSession) {
+    if (user) {
+      if (existingSessionId) {
+        // If we have a session ID, always load that specific session
+        loadExistingSession(existingSessionId);
+      } else if (!currentSession) {
+        // Only create new session if we don't have one and no session ID provided
+        initializeChat();
+      }
+    }
+  }, [user, existingSessionId]);
+
+  // Reset session when sessionId changes to null (new chat)
+  useEffect(() => {
+    if (existingSessionId === null && currentSession) {
+      // User navigated to new chat, reset current session
+      setCurrentSession(null);
+    }
+  }, [existingSessionId]);
+
+  const loadExistingSession = async (sessionId: string) => {
+    try {
+      console.log('Loading existing session:', sessionId);
+
+      // Fetch the existing session details
+      const response = await fetch(`/api/chat-sessions/${sessionId}`);
+      if (!response.ok) {
+        throw new Error('Failed to load session');
+      }
+
+      const session = await response.json();
+      setCurrentSession(session);
+
+      // Set the companion type based on session data
+      if (session.aiCompanion === 'monica') {
+        setAiCompanion('monica');
+        setCurrentLanguage('es');
+      } else {
+        setAiCompanion('vanessa');
+        setCurrentLanguage('en');
+      }
+
+      console.log('Existing session loaded:', session);
+    } catch (error) {
+      console.error('Failed to load existing session:', error);
+      // If loading fails, create a new session instead
       initializeChat();
     }
-  }, [user]);
+  };
 
   const initializeChat = async () => {
     try {
@@ -24,18 +68,11 @@ export const useChatSession = () => {
         console.log('User ID not available for chat session creation');
         return;
       }
-      
-      // Try to reuse the most recent session to keep history
-      const sessions = await chatService.getChatSessions(user.id);
-      if (sessions && sessions.length > 0) {
-        // Assume sessions are returned sorted by updatedAt desc
-        setCurrentSession(sessions[0]);
-        console.log('Loaded existing chat session:', sessions[0]);
-      } else {
-        const session = await chatService.createChatSession(user.id, 'Chat with Vanessa');
-        setCurrentSession(session);
-        console.log('Chat session created successfully:', session);
-      }
+
+      // Create a NEW session for new conversations
+      const session = await chatService.createChatSession(user.id, 'New Chat Session');
+      setCurrentSession(session);
+      console.log('New chat session created:', session);
     } catch (error) {
       console.error('Failed to initialize chat:', error);
       toast({

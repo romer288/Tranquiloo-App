@@ -60,7 +60,7 @@ const App = () => {
           <MobileHeader />
           
           {/* Main Content */}
-          <main className="flex-1 pt-14 pb-16 md:pt-0 md:pb-0 relative">
+          <main className="flex-1 pt-14 pb-16 md:pt-0 md:pb-0" style={{ zIndex: 1 }}>
             <ProtectedRoute>
               {children}
             </ProtectedRoute>
