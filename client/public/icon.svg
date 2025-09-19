@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#0ea5e9" rx="80"/>
+  <g transform="translate(256, 256)">
+    <path d="M -80 -30 C -80 -80, -30 -100, 0 -50 C 30 -100, 80 -80, 80 -30 C 80 30, 0 100, 0 100 S -80 30, -80 -30 Z" 
+          fill="white" 
+          stroke="white" 
+          stroke-width="4"/>
+    <circle cx="0" cy="0" r="8" fill="#0ea5e9"/>
+  </g>
+  <text x="256" y="380" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="white">MindCare</text>
+</svg>
