@@ -178,11 +178,17 @@ export const validateLanguageConsistency = (previousLanguage: 'en' | 'es', curre
     const targetKeywords = detectedLanguage === 'es' ? spanishKeywords : englishKeywords;
     const strongMatches = words.filter(word => targetKeywords.includes(word)).length;
     
-    // Require at least 30% of words to be strong language indicators for a switch
+    // Require at least 15% of words to be strong language indicators for a switch
     const confidence = strongMatches / words.length;
-    
-    if (confidence < 0.3) {
-      console.log(`Insufficient confidence (${confidence}) for language switch, keeping ${previousLanguage}`);
+
+    // Also check if the detected language has a strong score advantage
+    const detectedScore = scores[detectedLanguage] || 0;
+    const previousScore = scores[previousLanguage] || 0;
+    const scoreAdvantage = detectedScore - previousScore;
+
+    // Allow switch if either confidence is good OR there's a strong score advantage
+    if (confidence < 0.15 && scoreAdvantage < 50) {
+      console.log(`Insufficient confidence (${confidence}) and score advantage (${scoreAdvantage}) for language switch, keeping ${previousLanguage}`);
       return previousLanguage;
     }
   }

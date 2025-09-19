@@ -1,9 +1,12 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
-import * as schema from "@shared/schema";
+import dotenv from "dotenv";
+dotenv.config();
 
-neonConfig.webSocketConstructor = ws;
+// Disable SSL certificate verification for Supabase
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import * as schema from "@shared/schema";
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
@@ -11,5 +14,13 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// Configure SSL based on database provider
+const isSupabase = process.env.DATABASE_URL?.includes('supabase.com') || false;
+
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: isSupabase ? {
+    rejectUnauthorized: false
+  } : false
+});
 export const db = drizzle({ client: pool, schema });

@@ -1,10 +1,14 @@
 
+//Author: Harsh Dugar
+
 import { useEffect, useCallback } from 'react';
 import { useVoiceSelection } from './speech/useVoiceSelection';
 import { useSpeechState } from './speech/useSpeechState';
 
 // Cache voices across hook instances to avoid repeated loading delays
 let cachedVoices: SpeechSynthesisVoice[] | null = null;
+let voicesPreloaded = false;
+let bestVoiceCache: { en?: SpeechSynthesisVoice; es?: SpeechSynthesisVoice } = {};
 
 export const useSpeechSynthesis = () => {
   const {
@@ -26,24 +30,41 @@ export const useSpeechSynthesis = () => {
       setSpeechSynthesisSupported(true);
       console.log('🔊 Speech synthesis is supported');
       
-      // Critical for mobile: Load voices
+      // Critical for mobile: Load voices with caching
       const loadVoices = () => {
         const voices = window.speechSynthesis.getVoices();
-        if (voices.length > 0) {
+        if (voices.length > 0 && !voicesPreloaded) {
           cachedVoices = voices;
+          voicesPreloaded = true;
+
+          // Pre-cache best voices for both languages
+          try {
+            const enVoice = findBestVoiceForLanguage('en');
+            const esVoice = findBestVoiceForLanguage('es');
+            bestVoiceCache.en = enVoice === null ? undefined : enVoice;
+            bestVoiceCache.es = esVoice === null ? undefined : esVoice;
+            console.log('🔊 Pre-cached best voices:', {
+              en: bestVoiceCache.en?.name || 'none',
+              es: bestVoiceCache.es?.name || 'none'
+            });
+          } catch (error) {
+            console.log('🔊 Voice pre-caching delayed, will cache on first use');
+          }
         }
         console.log('🔊 Loaded', voices.length, 'voices for mobile compatibility');
         return voices;
       };
-      
+
       // Mobile browsers require this event listener
       if ('onvoiceschanged' in window.speechSynthesis) {
         window.speechSynthesis.onvoiceschanged = loadVoices;
       }
-      
-      // Try loading voices immediately
+
+      // Try loading voices immediately with multiple attempts
       loadVoices();
-      
+      setTimeout(loadVoices, 100);
+      setTimeout(loadVoices, 500);
+
       // Mobile fix: Cancel any stuck speech on load
       window.speechSynthesis.cancel();
     } else {
@@ -127,41 +148,80 @@ export const useSpeechSynthesis = () => {
           return;
         }
 
-        // Mobile fix: Ensure voices are loaded before creating utterance
-        let voices = cachedVoices || window.speechSynthesis.getVoices();
-        if (voices.length === 0) {
-          console.log('🔊 No voices loaded, attempting to trigger load...');
-          // Try to nudge, but do NOT block if still empty
-          const dummy = new SpeechSynthesisUtterance('');
-          try {
-            window.speechSynthesis.speak(dummy);
-            window.speechSynthesis.cancel();
-            voices = window.speechSynthesis.getVoices();
-            if (voices.length > 0) cachedVoices = voices;
-          } catch {}
-          console.log('🔊 After trigger, voices available:', voices.length);
+        let voice = bestVoiceCache[language];
+
+        if (voice) {
+          const correctLang = language === 'es'
+            ? voice.lang.toLowerCase().startsWith('es')
+            : voice.lang.toLowerCase().startsWith('en');
+
+          if (!correctLang) {
+            delete bestVoiceCache[language];
+            voice = undefined;
+          }
         }
-        
+
+        if (!voice) {
+          const foundVoice = findBestVoiceForLanguage(language);
+          voice = foundVoice === null ? undefined : foundVoice;
+          if (voice) {
+            bestVoiceCache[language] = voice;
+          }
+        }
+
         const utterance = new SpeechSynthesisUtterance(text);
-        const voice = findBestVoiceForLanguage(language);
-        
-        // Prefer local voices if available (better for PWAs)
-        const chosen = voice && voice.localService ? voice : 
-          (voices.find(v => v.lang.startsWith(utterance.lang) && v.localService) || voice);
-        
-        if (chosen) {
-          utterance.voice = chosen;
-          console.log('🔊 Using selected voice:', chosen.name, 'Local:', chosen.localService, 'Lang:', chosen.lang);
-        } else {
-          console.log('🔊 No suitable voice found, using system default');
+
+        if (voice) {
+          utterance.voice = voice;
+          const expectedPrefix = language === 'es' ? 'es' : 'en';
+          if (!voice.lang.toLowerCase().startsWith(expectedPrefix)) {
+            delete bestVoiceCache[language];
+          }
         }
         
-        // Configure speech parameters - mobile-friendly settings
-        utterance.lang = language === 'es' ? 'es-ES' : 'en-US'; // Use US English for better mobile support
-        utterance.rate = 1.0; // Normal speed for natural speech
-        utterance.pitch = 1.0; // Natural pitch
-        utterance.volume = 1.0; // Full volume for mobile speakers
-        
+        if (language === 'es') {
+          utterance.lang = 'es-MX';
+          utterance.rate = 0.82;
+          utterance.pitch = 1.08;
+          utterance.volume = 0.85;
+
+          if (voice) {
+            if (voice.lang.includes('mx') || voice.lang.includes('MX')) {
+              utterance.lang = voice.lang;
+            } else if (voice.lang.match(/es-(mx|us|co|ar|cl|pe|ve|ec|uy|py|bo|cr|gt|hn|ni|pa|sv|do|cu|pr)/i)) {
+              utterance.lang = voice.lang;
+            }
+          }
+        } else {
+          utterance.lang = 'en-GB';
+          utterance.rate = 0.88;
+          utterance.pitch = 1.02;
+          utterance.volume = 0.88;
+
+          if (voice && (voice.lang.includes('GB') || voice.lang.includes('UK'))) {
+            utterance.lang = voice.lang;
+          }
+        }
+
+        if (voice && (
+          voice.name.toLowerCase().includes('enhanced') ||
+          voice.name.toLowerCase().includes('premium') ||
+          voice.name.toLowerCase().includes('neural') ||
+          voice.name.toLowerCase().includes('natural') ||
+          voice.name.toLowerCase().includes('wavenet') ||
+          voice.name.toLowerCase().includes('libby') ||
+          voice.name.toLowerCase().includes('sonia')
+        )) {
+          if (language === 'es') {
+            utterance.rate = 0.8;
+          } else {
+            utterance.rate = 0.82;
+            utterance.pitch = 1.05;
+          }
+        }
+
+        setIsSpeaking(true);
+
         let hasCompleted = false;
         
         const complete = (reason = 'completed') => {
@@ -187,8 +247,9 @@ export const useSpeechSynthesis = () => {
           console.log('🔊 Speech settings:', { rate: utterance.rate, pitch: utterance.pitch, volume: utterance.volume });
           setIsSpeaking(true);
           
-          // Safety timeout - reduce to prevent 10 second delays
-          const maxDuration = Math.max(8000, text.length * 60);
+          // Realistic timeout based on speaking speed (avg 150 words per minute = ~5 chars per second)
+          const estimatedDuration = (text.length / 5) * 1000; // 200ms per character for natural speech
+          const maxDuration = Math.max(10000, estimatedDuration * 1.5); // 1.5x buffer, 10 second minimum
           console.log('🔊 Setting safety timeout for:', maxDuration, 'ms');
           speechTimeoutRef.current = setTimeout(() => {
             console.log('🔊 Speech timeout after', maxDuration, 'ms');
@@ -225,53 +286,50 @@ export const useSpeechSynthesis = () => {
         // Mobile fix: Always cancel before speaking to clear any stuck state
         window.speechSynthesis.cancel();
         
-        // Mobile browsers need a small delay after cancel
+        // Optimized speech startup with minimal delays
         setTimeout(() => {
           // Check if speech synthesis is ready
           if (window.speechSynthesis.paused) {
             console.log('🔊 Speech synthesis was paused, resuming...');
             window.speechSynthesis.resume();
           }
-          
-          // Mobile fix: Some browsers need user interaction first
-          // Add utterance to queue
+
           try {
-            // For mobile: Ensure we're not speaking too fast
+            // Streamlined speech initiation
             if (window.speechSynthesis.speaking) {
               console.log('🔊 Already speaking, cancelling and restarting');
               window.speechSynthesis.cancel();
               setTimeout(() => {
-                try { window.speechSynthesis.resume(); } catch {}
                 window.speechSynthesis.speak(utterance);
                 console.log('🔊 Restarted speech after cancel');
-              }, 100);
+              }, 50); // Reduced from 100ms
             } else {
               try { window.speechSynthesis.resume(); } catch {}
               window.speechSynthesis.speak(utterance);
               console.log('🔊 Speech command sent successfully');
-              
-              // Mobile workaround: Sometimes speech doesn't start immediately
+
+              // Reduced mobile workaround timeout
               setTimeout(() => {
                 if (!window.speechSynthesis.speaking && !hasCompleted) {
                   console.log('🔊 Speech not started, trying resume...');
                   window.speechSynthesis.resume();
-                  
-                  // Last resort: try speaking again
+
+                  // Last resort with shorter delay
                   setTimeout(() => {
                     if (!window.speechSynthesis.speaking && !hasCompleted) {
                       console.log('🔊 Final attempt to speak');
                       window.speechSynthesis.cancel();
                       window.speechSynthesis.speak(utterance);
                     }
-                  }, 200);
+                  }, 100); // Reduced from 200ms
                 }
-              }, 500);
+              }, 250); // Reduced from 500ms
             }
           } catch (speakError) {
             console.error('🔊 Error calling speak:', speakError);
             complete('failed to speak');
           }
-        }, 50);
+        }, 25); // Reduced from 50ms
         
       } catch (error) {
         console.error('🔊 Error creating speech:', error);

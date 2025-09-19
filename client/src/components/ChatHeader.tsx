@@ -1,21 +1,24 @@
 
 import React from 'react';
-import { Volume2, VolumeX, ChevronLeft } from 'lucide-react';
+import { Volume2, VolumeX, ChevronLeft, History } from 'lucide-react';
 import { AICompanion, Language } from '@/types/chat';
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 interface ChatHeaderProps {
   speechSynthesisSupported: boolean;
   speechSupported: boolean;
   aiCompanion: AICompanion;
   currentLanguage: Language;
+  onToggleMobileChatHistory?: () => void;
 }
 
-const ChatHeader = ({ 
-  speechSynthesisSupported, 
-  speechSupported, 
-  aiCompanion, 
-  currentLanguage 
+const ChatHeader = ({
+  speechSynthesisSupported,
+  speechSupported,
+  aiCompanion,
+  currentLanguage,
+  onToggleMobileChatHistory
 }: ChatHeaderProps) => {
   const getTitle = () => {
     if (aiCompanion === 'monica') {
@@ -41,7 +44,7 @@ const ChatHeader = ({
   return (
     <div className="bg-white border-b border-gray-200 p-4">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-2 mb-2 md:hidden">
+        <div className="flex items-center justify-between gap-2 mb-2 md:hidden">
           <Link
             to="/dashboard"
             className="p-2 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation inline-block"
@@ -50,6 +53,18 @@ const ChatHeader = ({
           >
             <ChevronLeft className="w-6 h-6" />
           </Link>
+
+          {onToggleMobileChatHistory && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onToggleMobileChatHistory}
+              className="flex items-center gap-2"
+            >
+              <History className="w-4 h-4" />
+              History
+            </Button>
+          )}
         </div>
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           {speechSynthesisSupported ? (

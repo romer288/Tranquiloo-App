@@ -29,7 +29,29 @@ export const useChatMessages = () => {
   };
 
   const addMessage = (message: Message) => {
-    setMessages(prev => [...prev, message]);
+    setMessages(prev => {
+      // Check if message already exists to prevent frontend duplicates
+      const exists = prev.find(msg => msg.id === message.id);
+      if (exists) {
+        console.log('🚫 Duplicate message blocked (same ID):', message.id, message.text);
+        return prev;
+      }
+
+      // Also check for duplicate content from same sender within last few seconds
+      const duplicateContent = prev.find(msg =>
+        msg.text === message.text &&
+        msg.sender === message.sender &&
+        Math.abs(new Date(msg.timestamp).getTime() - new Date(message.timestamp).getTime()) < 5000
+      );
+
+      if (duplicateContent) {
+        console.log('🚫 Duplicate message blocked (same content):', message.text);
+        return prev;
+      }
+
+      console.log('✅ Adding new message:', message.id, message.text.substring(0, 50));
+      return [...prev, message];
+    });
   };
 
   const updateMessage = (messageId: string, updates: Partial<Message>) => {

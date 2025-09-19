@@ -38,6 +38,6 @@ export const getContextualResponse = (anxietyAnalysis: any, language: Language):
 };
 
 export const shouldSwitchToMonica = (text: string, currentCompanion: AICompanion): boolean => {
-  const detectedLanguage = detectLanguage(text);
-  return detectedLanguage === 'es' && currentCompanion === 'vanessa';
+  // Disable automatic switching - let users choose their companion manually
+  return false;
 };

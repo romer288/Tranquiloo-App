@@ -26,7 +26,7 @@ export const chatService = {
       return await response.json();
     } catch (error) {
       console.error('Error fetching chat sessions:', error);
-      throw error;
+      return []; // Return empty array instead of throwing to prevent app crash
     }
   },
 
@@ -67,7 +67,8 @@ export const chatService = {
     }
   },
 
-  async sendMessage(sessionId: string, content: string, role: 'user' | 'assistant' = 'user', userId?: string): Promise<ChatMessage> {
+  async sendMessage(sessionId: string, content: string, role: 'user' | 'assistant' = 'user', userId?: string, messageId?: string): Promise<ChatMessage> {
+    console.log('📡 chatService.sendMessage called:', { sessionId, content: content.substring(0, 30), role, messageId });
     try {
       const response = await fetch('/api/chat-messages', {
         method: 'POST',
@@ -75,7 +76,7 @@ export const chatService = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: crypto.randomUUID(),
+          id: messageId || crypto.randomUUID(),
           sessionId,
           content,
           sender: role,
@@ -95,8 +96,8 @@ export const chatService = {
   },
 
   // Add missing saveMessage function
-  async saveMessage(sessionId: string, content: string, role: 'user' | 'assistant' = 'user', userId?: string): Promise<ChatMessage> {
-    return this.sendMessage(sessionId, content, role, userId);
+  async saveMessage(sessionId: string, content: string, role: 'user' | 'assistant' = 'user', userId?: string, messageId?: string): Promise<ChatMessage> {
+    return this.sendMessage(sessionId, content, role, userId, messageId);
   },
 
   // Add missing saveAnxietyAnalysis function
@@ -121,6 +122,25 @@ export const chatService = {
     } catch (error) {
       console.warn('Error saving anxiety analysis:', error);
       // Don't throw error to prevent blocking chat flow
+    }
+  },
+
+  // Update chat session title
+  async updateChatSessionTitle(sessionId: string, title: string): Promise<void> {
+    try {
+      const response = await fetch(`/api/chat-sessions/${sessionId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title })
+      });
+
+      if (!response.ok) {
+        console.warn('Failed to update chat session title');
+      }
+    } catch (error) {
+      console.warn('Error updating chat session title:', error);
     }
   }
 };

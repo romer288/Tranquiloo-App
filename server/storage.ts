@@ -30,6 +30,7 @@ export interface IStorage {
   // Chat messages
   getChatMessage(id: string): Promise<ChatMessage | undefined>;
   getChatMessagesBySession(sessionId: string): Promise<ChatMessage[]>;
+  getRawChatMessagesBySession(sessionId: string): Promise<ChatMessage[]>;
   getChatMessagesByUser(userId: string): Promise<ChatMessage[]>;
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
 
@@ -150,6 +151,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getChatMessagesBySession(sessionId: string): Promise<ChatMessage[]> {
+    const messages = await db.select().from(chatMessages).where(eq(chatMessages.sessionId, sessionId)).orderBy(chatMessages.createdAt);
+
+    // Remove duplicates at database level by content, sender, and sessionId
+    // More aggressive deduplication to catch existing duplicates
+    const uniqueMessages = messages.filter((msg, index, arr) => {
+      const duplicateIndex = arr.findIndex(m =>
+        m.content === msg.content &&
+        m.sender === msg.sender &&
+        m.sessionId === msg.sessionId
+      );
+
+      // Keep the first occurrence (earliest by index)
+      return duplicateIndex === index;
+    });
+
+    return uniqueMessages;
+  }
+
+  // Get raw messages without deduplication for duplicate checking
+  async getRawChatMessagesBySession(sessionId: string): Promise<ChatMessage[]> {
     return await db.select().from(chatMessages).where(eq(chatMessages.sessionId, sessionId)).orderBy(chatMessages.createdAt);
   }
 
